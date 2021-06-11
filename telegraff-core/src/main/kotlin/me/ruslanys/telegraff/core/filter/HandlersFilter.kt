@@ -33,7 +33,13 @@ class HandlersFilter(private val telegramApi: TelegramApi, handlersFactory: Hand
 
         val response = try {
             if (state == null) {
-                val newState = HandlerState(message.chat, handler)
+                val newState = HandlerState(
+                    message.chat.apply {
+                        // Populating language code in chat entity for further usage
+                        languageCode = message.user?.languageCode
+                    },
+                    handler
+                )
                 states[message.chat.id] = newState
 
                 handleQuestion(newState)
@@ -59,7 +65,13 @@ class HandlersFilter(private val telegramApi: TelegramApi, handlersFactory: Hand
 
     private fun handleContinuation(state: HandlerState, message: TelegramMessage): TelegramSendRequest? {
         val currentStep = state.currentStep!!
-        val text = message.text!!
+        // In case if it was a contact request question json of user contact will be returned and validation block will be responsible
+        // for it's validation
+        val text = if (message.contact != null) {
+            message.contact.getContact()
+        } else {
+            message.text!!
+        }
 
         // validation
         val validation = currentStep.validation
