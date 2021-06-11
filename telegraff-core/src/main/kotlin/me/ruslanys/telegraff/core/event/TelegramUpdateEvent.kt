@@ -4,6 +4,6 @@ import me.ruslanys.telegraff.core.dto.TelegramUpdate
 import org.springframework.context.ApplicationEvent
 
 class TelegramUpdateEvent(
-        source: Any,
-        val update: TelegramUpdate
+    source: Any,
+    val update: TelegramUpdate
 ) : ApplicationEvent(source)

@@ -44,7 +44,6 @@ class TelegramProperties {
     fun getWebhookUrl(): String = "$webhookBaseUrl$webhookEndpointUrl"
 
 
-
     class UnresolvedMessageFilterProperties {
         /**
          * Enable UnresolvedMessageFilter.

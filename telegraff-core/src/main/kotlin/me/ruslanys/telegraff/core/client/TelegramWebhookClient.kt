@@ -14,9 +14,9 @@ import javax.annotation.PreDestroy
 
 @RestController
 class TelegramWebhookClient(
-        private val telegramApi: TelegramApi,
-        private val publisher: ApplicationEventPublisher,
-        private val webhookUrl: String
+    private val telegramApi: TelegramApi,
+    private val publisher: ApplicationEventPublisher,
+    private val webhookUrl: String
 ) : TelegramClient {
 
     @PostConstruct

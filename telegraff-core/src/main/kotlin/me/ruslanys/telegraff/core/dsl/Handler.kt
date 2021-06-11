@@ -1,10 +1,10 @@
 package me.ruslanys.telegraff.core.dsl
 
 class Handler(
-        val commands: List<String>,
-        private val steps: Map<String, Step<*>>,
-        private val initialStepKey: String?,
-        val process: ProcessBlock
+    val commands: List<String>,
+    private val steps: Map<String, Step<*>>,
+    private val initialStepKey: String?,
+    val process: ProcessBlock
 ) {
 
     fun getInitialStep(): Step<*>? {

@@ -5,22 +5,20 @@ import me.ruslanys.telegraff.core.dto.request.keyboard.TelegramRemoveReplyKeyboa
 import me.ruslanys.telegraff.core.dto.request.keyboard.TelegramReplyKeyboard
 
 open class TelegramMessageSendRequest(
+    chatId: Long,
 
-        chatId: Long,
+    @get:JsonProperty("text")
+    val text: String,
 
-        @get:JsonProperty("text")
-        val text: String,
+    @get:JsonProperty("parse_mode")
+    val parseMode: TelegramParseMode,
 
-        @get:JsonProperty("parse_mode")
-        val parseMode: TelegramParseMode,
+    replyMarkup: TelegramReplyKeyboard = TelegramRemoveReplyKeyboard(),
 
-        replyMarkup: TelegramReplyKeyboard = TelegramRemoveReplyKeyboard(),
+    disableNotification: Boolean = false,
 
-        disableNotification: Boolean = false,
-
-        @get:JsonProperty("disable_web_page_preview")
-        val disableWebPagePreview: Boolean = false
-
+    @get:JsonProperty("disable_web_page_preview")
+    val disableWebPagePreview: Boolean = false
 ) : TelegramSendRequest(chatId, replyMarkup, disableNotification) {
 
     override fun equals(other: Any?): Boolean {

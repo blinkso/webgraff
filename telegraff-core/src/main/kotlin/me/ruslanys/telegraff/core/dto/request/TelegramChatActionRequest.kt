@@ -5,13 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 open class TelegramChatActionRequest(
+    @get:JsonProperty("chat_id")
+    var chatId: Long,
 
-        @get:JsonProperty("chat_id")
-        var chatId: Long,
-
-        @get:JsonProperty("action")
-        val action: TelegramChatAction
-
+    @get:JsonProperty("action")
+    val action: TelegramChatAction
 ) {
 
     override fun equals(other: Any?): Boolean {

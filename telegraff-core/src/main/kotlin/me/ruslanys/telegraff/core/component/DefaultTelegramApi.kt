@@ -17,15 +17,15 @@ import org.springframework.util.LinkedMultiValueMap
 class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTemplateBuilder) : TelegramApi {
 
     private val restTemplate = restTemplateBuilder
-            .rootUri("https://api.telegram.org/bot$telegramAccessKey")
-            .build()
+        .rootUri("https://api.telegram.org/bot$telegramAccessKey")
+        .build()
 
     override fun getMe(): TelegramUser {
         val response = restTemplate.exchange(
-                "/getMe",
-                HttpMethod.GET,
-                null,
-                object : ParameterizedTypeReference<TelegramResponse<TelegramUser>>() {}
+            "/getMe",
+            HttpMethod.GET,
+            null,
+            object : ParameterizedTypeReference<TelegramResponse<TelegramUser>>() {}
         )
 
         return response.body!!.result!!
@@ -37,10 +37,10 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
         timeout?.let { params["timeout"] = it }
 
         val response = restTemplate.exchange(
-                "/getUpdates",
-                HttpMethod.POST,
-                HttpEntity(params),
-                object : ParameterizedTypeReference<TelegramResponse<List<TelegramUpdate>>>() {}
+            "/getUpdates",
+            HttpMethod.POST,
+            HttpEntity(params),
+            object : ParameterizedTypeReference<TelegramResponse<List<TelegramUpdate>>>() {}
         )
 
         return response.body!!.result!!
@@ -50,10 +50,10 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
         val params = hashMapOf("url" to url)
 
         val response = restTemplate.exchange(
-                "/setWebhook",
-                HttpMethod.POST,
-                HttpEntity(params),
-                object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {}
+            "/setWebhook",
+            HttpMethod.POST,
+            HttpEntity(params),
+            object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {}
         )
 
         return response.body!!.result!!
@@ -65,10 +65,10 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
 
     override fun sendMessage(request: TelegramMessageSendRequest): TelegramMessage {
         val response = restTemplate.exchange(
-                "/sendMessage",
-                HttpMethod.POST,
-                HttpEntity(request),
-                object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {}
+            "/sendMessage",
+            HttpMethod.POST,
+            HttpEntity(request),
+            object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {}
         )
 
         return response.body!!.result!!
@@ -88,10 +88,10 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
         headers.contentType = MediaType.MULTIPART_FORM_DATA
 
         val entity = restTemplate.exchange(
-                "/sendPhoto",
-                HttpMethod.POST,
-                HttpEntity(formData, headers),
-                object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {}
+            "/sendPhoto",
+            HttpMethod.POST,
+            HttpEntity(formData, headers),
+            object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {}
         )
 
         return entity.body!!.result!!
@@ -111,10 +111,10 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
         headers.contentType = MediaType.MULTIPART_FORM_DATA
 
         val entity = restTemplate.exchange(
-                "/sendVoice",
-                HttpMethod.POST,
-                HttpEntity(formData, headers),
-                object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {}
+            "/sendVoice",
+            HttpMethod.POST,
+            HttpEntity(formData, headers),
+            object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {}
         )
 
         return entity.body!!.result!!
@@ -122,21 +122,21 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
 
     override fun sendChatAction(request: TelegramChatActionRequest): Boolean {
         val response = restTemplate.exchange(
-                "/sendChatAction",
-                HttpMethod.POST,
-                HttpEntity(request),
-                object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {}
+            "/sendChatAction",
+            HttpMethod.POST,
+            HttpEntity(request),
+            object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {}
         )
         return response.body!!.result!!
     }
 
     private fun createFormData(request: TelegramMediaSendRequest): LinkedMultiValueMap<String, Any> =
-            LinkedMultiValueMap<String, Any>().apply {
-                add("chat_id", request.chatId)
-                add("reply_markup", request.replyKeyboard)
-                add("disable_notification", request.disableNotification)
-                request.caption?.let { add("caption", request.caption) }
-                request.parseMode?.let { add("parse_mode", request.parseMode.name) }
-            }
+        LinkedMultiValueMap<String, Any>().apply {
+            add("chat_id", request.chatId)
+            add("reply_markup", request.replyKeyboard)
+            add("disable_notification", request.disableNotification)
+            request.caption?.let { add("caption", request.caption) }
+            request.parseMode?.let { add("parse_mode", request.parseMode.name) }
+        }
 
 }

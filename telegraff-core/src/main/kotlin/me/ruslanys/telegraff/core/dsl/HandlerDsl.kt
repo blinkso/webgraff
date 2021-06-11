@@ -50,10 +50,10 @@ class HandlerDsl(private val commands: List<String>, val context: GenericApplica
 
 
         return Handler(
-                commands,
-                steps.associateBy { it.key },
-                stepDsls.firstOrNull()?.key,
-                process ?: throw HandlerException("Process block must not be null!")
+            commands,
+            steps.associateBy { it.key },
+            stepDsls.firstOrNull()?.key,
+            process ?: throw HandlerException("Process block must not be null!")
         )
     }
 
@@ -89,13 +89,13 @@ class StepDsl<T : Any>(val key: String) {
 
     internal fun build(defaultNext: NextStepBlock): Step<T> {
         return Step(
-                key,
-                question ?: throw HandlerException("Step question must not be null!"),
-                validation ?: {
-                    @Suppress("UNCHECKED_CAST")
-                    it as T
-                },
-                next ?: defaultNext
+            key,
+            question ?: throw HandlerException("Step question must not be null!"),
+            validation ?: {
+                @Suppress("UNCHECKED_CAST")
+                it as T
+            },
+            next ?: defaultNext
         )
     }
 

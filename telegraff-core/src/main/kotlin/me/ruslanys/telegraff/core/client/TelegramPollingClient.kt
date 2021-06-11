@@ -11,8 +11,8 @@ import java.util.concurrent.TimeUnit
 import javax.annotation.PreDestroy
 
 class TelegramPollingClient(
-        private val telegramApi: TelegramApi,
-        private val publisher: ApplicationEventPublisher
+    private val telegramApi: TelegramApi,
+    private val publisher: ApplicationEventPublisher
 ) : TelegramClient, ApplicationListener<ApplicationReadyEvent> {
 
     private val client = Client()

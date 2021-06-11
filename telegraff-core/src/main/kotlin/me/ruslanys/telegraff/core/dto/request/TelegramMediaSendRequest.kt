@@ -4,12 +4,11 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import me.ruslanys.telegraff.core.dto.request.keyboard.TelegramRemoveReplyKeyboard
 
 abstract class TelegramMediaSendRequest(
-        chatId: Long,
+    chatId: Long,
 
-        @get:JsonProperty("caption")
-        val caption: String? = null,
+    @get:JsonProperty("caption")
+    val caption: String? = null,
 
-        @get:JsonProperty("parse_mode")
-        val parseMode: TelegramParseMode? = null
-
+    @get:JsonProperty("parse_mode")
+    val parseMode: TelegramParseMode? = null
 ) : TelegramSendRequest(chatId, TelegramRemoveReplyKeyboard())

@@ -3,14 +3,12 @@ package me.ruslanys.telegraff.core.dto.request
 import com.fasterxml.jackson.annotation.JsonProperty
 
 open class TelegramVoiceSendRequest(
+    chatId: Long,
 
-        chatId: Long,
+    @get:JsonProperty("voice")
+    val voice: ByteArray,
 
-        @get:JsonProperty("voice")
-        val voice: ByteArray,
+    caption: String? = null,
 
-        caption: String? = null,
-
-        parseMode: TelegramParseMode? = null
-
+    parseMode: TelegramParseMode? = null
 ) : TelegramMediaSendRequest(chatId, caption, parseMode)

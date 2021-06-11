@@ -1,10 +1,10 @@
 package me.ruslanys.telegraff.core.dsl
 
 class Step<T : Any>(
-        val key: String,
-        val question: QuestionBlock,
-        val validation: ValidationBlock<T>,
-        val next: NextStepBlock
+    val key: String,
+    val question: QuestionBlock,
+    val validation: ValidationBlock<T>,
+    val next: NextStepBlock
 ) {
 
     override fun equals(other: Any?): Boolean {

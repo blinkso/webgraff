@@ -11,8 +11,9 @@ import javax.script.ScriptEngineFactory
 
 @Component
 class DefaultHandlersFactory(
-        private val context: GenericApplicationContext,
-        handlersPath: String) : HandlersFactory {
+    private val context: GenericApplicationContext,
+    handlersPath: String
+) : HandlersFactory {
 
     private val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader)
     private val handlers: MutableMap<String, Handler> = hashMapOf()

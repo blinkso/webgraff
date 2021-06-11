@@ -6,16 +6,14 @@ import me.ruslanys.telegraff.core.dto.request.keyboard.TelegramReplyKeyboard
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 abstract class TelegramSendRequest(
+    @get:JsonProperty("chat_id")
+    var chatId: Long,
 
-        @get:JsonProperty("chat_id")
-        var chatId: Long,
+    @get:JsonProperty("reply_markup")
+    val replyKeyboard: TelegramReplyKeyboard,
 
-        @get:JsonProperty("reply_markup")
-        val replyKeyboard: TelegramReplyKeyboard,
-
-        @get:JsonProperty("disable_notification")
-        val disableNotification: Boolean = false
-
+    @get:JsonProperty("disable_notification")
+    val disableNotification: Boolean = false
 ) {
 
     override fun equals(other: Any?): Boolean {
