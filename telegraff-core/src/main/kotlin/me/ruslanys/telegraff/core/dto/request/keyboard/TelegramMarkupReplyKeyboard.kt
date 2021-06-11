@@ -1,21 +1,25 @@
 package me.ruslanys.telegraff.core.dto.request.keyboard
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import me.ruslanys.telegraff.core.util.DEFAULT_LOCALE
+import me.ruslanys.telegraff.core.util.localized
+import java.util.*
 
 class TelegramMarkupReplyKeyboard(
-        answers: List<String>,
-        columns: Int = DEFAULT_COLUMNS_NUMBER,
+    answers: List<String>,
+    columns: Int = DEFAULT_COLUMNS_NUMBER,
+    locale: Locale? = DEFAULT_LOCALE,
 
-        @get:JsonProperty("resize_keyboard")
-        val resizeKeyboard: Boolean = true,
+    @get:JsonProperty("resize_keyboard")
+    val resizeKeyboard: Boolean = true,
 
-        @get:JsonProperty("one_time_keyboard")
-        val oneTimeKeyboard: Boolean = true
+    @get:JsonProperty("one_time_keyboard")
+    val oneTimeKeyboard: Boolean = true
 ) : TelegramReplyKeyboard() {
 
     val keyboard: List<List<String>> = answers.asSequence()
-            .chunked(columns)
-            .plusElement(listOf("Отмена"))
+        .chunked(columns)
+        .plusElement(listOf("cancel_telegram".localized(locale)))
             .toList()
 
     companion object {
