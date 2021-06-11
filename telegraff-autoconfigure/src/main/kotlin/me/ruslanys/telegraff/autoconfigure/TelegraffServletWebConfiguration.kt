@@ -95,19 +95,6 @@ class TelegraffServletWebConfiguration(val telegramProperties: TelegramPropertie
         return HandlersFilter(telegramApi, handlersFactory)
     }
 
-    @Bean
-    @ConditionalOnMissingBean(CancelFilter::class)
-    fun cancelFilter(telegramApi: TelegramApi, handlersFilter: HandlersFilter): CancelFilter {
-        return CancelFilter(telegramApi, handlersFilter)
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(UnresolvedMessageFilter::class)
-    @ConditionalOnProperty(name = ["telegram.unresolved-filter.enabled"], matchIfMissing = true)
-    fun unresolvedMessageFilter(telegramApi: TelegramApi): UnresolvedMessageFilter {
-        return UnresolvedMessageFilter(telegramApi)
-    }
-
     // endregion
 
 }
