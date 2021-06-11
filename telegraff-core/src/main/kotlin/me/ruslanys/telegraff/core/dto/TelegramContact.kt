@@ -16,6 +16,15 @@ data class TelegramContact(
     @get:JsonProperty("phone_number")
     val phoneNumber: String?
 ) {
+    constructor() : this(
+        0L,
+        "",
+        null,
+        null
+    )
+
     // This will be returned to validation block which will be responsible for parsing it back as a contact entity
-    fun getContact(): String = ObjectMapper().writeValueAsString(this)
+    fun getContact(): String? {
+        return ObjectMapper().writeValueAsString(this)
+    }
 }

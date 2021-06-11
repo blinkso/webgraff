@@ -68,7 +68,7 @@ class HandlersFilter(private val telegramApi: TelegramApi, handlersFactory: Hand
         // In case if it was a contact request question json of user contact will be returned and validation block will be responsible
         // for it's validation
         val text = if (message.contact != null) {
-            message.contact.getContact()
+            message.contact.getContact() ?: message.text!!
         } else {
             message.text!!
         }
