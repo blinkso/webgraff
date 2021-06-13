@@ -9,12 +9,14 @@ dependencies {
 
 jacocoTestReport {
     afterEvaluate {
-        classDirectories = files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: [
-                    'me/ruslanys/telegraff/core/exception/**',
-                    'me/ruslanys/telegraff/core/dto/**',
-                    'me/ruslanys/telegraff/core/event/**'
-            ])
-        })
+        getClassDirectories().setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, exclude: [
+                            'me/ruslanys/telegraff/core/exception/**',
+                            'me/ruslanys/telegraff/core/dto/**',
+                            'me/ruslanys/telegraff/core/event/**'
+                    ])
+                })
+        )
     }
 }
