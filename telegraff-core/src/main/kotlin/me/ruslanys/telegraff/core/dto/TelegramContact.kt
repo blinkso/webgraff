@@ -1,8 +1,9 @@
 package me.ruslanys.telegraff.core.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.ObjectMapper
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class TelegramContact(
     @get:JsonProperty("user_id")
     val userId: Long,
@@ -23,8 +24,13 @@ data class TelegramContact(
         null
     )
 
-    // This will be returned to validation block which will be responsible for parsing it back as a contact entity
-    fun getContact(): String? {
-        return ObjectMapper().writeValueAsString(this)
+    fun getFullName(): String {
+        return firstName.plus(
+            if (lastName?.isNotEmpty() == true) {
+                " $lastName"
+            } else {
+                ""
+            }
+        )
     }
 }

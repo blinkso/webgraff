@@ -1,5 +1,6 @@
 package me.ruslanys.telegraff.core.filter
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import me.ruslanys.telegraff.core.annotation.TelegramFilterOrder
 import me.ruslanys.telegraff.core.component.TelegramApi
 import me.ruslanys.telegraff.core.dsl.Handler
@@ -16,7 +17,11 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 @TelegramFilterOrder(1)
-class HandlersFilter(private val telegramApi: TelegramApi, handlersFactory: HandlersFactory) : TelegramFilter {
+class HandlersFilter(
+    private val telegramApi: TelegramApi,
+    private val objectMapper: ObjectMapper,
+    handlersFactory: HandlersFactory
+) : TelegramFilter {
 
     private val handlers: Map<String, Handler> = handlersFactory.getHandlers()
     private val states: MutableMap<Long, HandlerState> = ConcurrentHashMap()
@@ -68,7 +73,7 @@ class HandlersFilter(private val telegramApi: TelegramApi, handlersFactory: Hand
         // In case if it was a contact request question json of user contact will be returned and validation block will be responsible
         // for it's validation
         val text = if (message.contact != null) {
-            message.contact.getContact() ?: message.text!!
+            objectMapper.writeValueAsString(message.contact) ?: message.text!!
         } else {
             message.text!!
         }
