@@ -34,4 +34,6 @@ interface TelegramApi {
 
     fun sendChatAction(request: TelegramChatActionRequest): Boolean
 
+    fun sendAnswerCallbackQuery(callbackQueryId: Long): Boolean
+
 }

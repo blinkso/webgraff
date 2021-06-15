@@ -103,6 +103,12 @@ class TelegraffServletWebConfiguration(val telegramProperties: TelegramPropertie
         return HandlersFilter(telegramApi, objectMapper, handlersFactory)
     }
 
+    @Bean
+    @ConditionalOnMissingBean(CallbackQueryAnswerFilter::class)
+    fun callbackQueryFilter(telegramApi: TelegramApi): CallbackQueryAnswerFilter {
+        return CallbackQueryAnswerFilter(telegramApi)
+    }
+
     // endregion
 
     @Bean

@@ -10,13 +10,14 @@ import me.ruslanys.telegraff.core.dto.TelegramChat
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.dto.request.*
 import me.ruslanys.telegraff.core.exception.ValidationException
+import me.ruslanys.telegraff.core.filter.FilterOrders.Companion.HANDLERS_FILTER_ORDER
 import me.ruslanys.telegraff.core.util.DEFAULT_LOCALE
 import me.ruslanys.telegraff.core.util.localized
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
-@TelegramFilterOrder(1)
+@TelegramFilterOrder(HANDLERS_FILTER_ORDER)
 class HandlersFilter(
     private val telegramApi: TelegramApi,
     private val objectMapper: ObjectMapper,

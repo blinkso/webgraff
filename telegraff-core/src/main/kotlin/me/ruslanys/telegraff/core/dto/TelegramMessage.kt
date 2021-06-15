@@ -1,7 +1,6 @@
 package me.ruslanys.telegraff.core.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.util.*
 
 data class TelegramMessage(
     @JsonProperty("message_id")
@@ -20,9 +19,9 @@ data class TelegramMessage(
     val contact: TelegramContact?,
 
     @JsonProperty("text")
-    val text: String?
-) {
+    var text: String?,
 
-    fun getDate(): Date = Date(date * 1000)
-
-}
+    // Used for callback populating and filtering
+    @JsonProperty("callback_query")
+    var callbackQuery: TelegramCallbackQuery? = null
+)

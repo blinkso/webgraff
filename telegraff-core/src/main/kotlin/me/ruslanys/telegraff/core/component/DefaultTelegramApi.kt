@@ -5,6 +5,7 @@ import me.ruslanys.telegraff.core.dto.TelegramResponse
 import me.ruslanys.telegraff.core.dto.TelegramUpdate
 import me.ruslanys.telegraff.core.dto.TelegramUser
 import me.ruslanys.telegraff.core.dto.request.*
+import me.ruslanys.telegraff.core.util.EMPTY
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.core.io.ByteArrayResource
@@ -60,7 +61,7 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
     }
 
     override fun removeWebhook(): Boolean {
-        return setWebhook("")
+        return setWebhook(String.EMPTY)
     }
 
     override fun sendMessage(request: TelegramMessageSendRequest): TelegramMessage {
@@ -127,6 +128,22 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
             HttpEntity(request),
             object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {}
         )
+
+        return response.body!!.result!!
+    }
+
+    override fun sendAnswerCallbackQuery(callbackQueryId: Long): Boolean {
+        val response = restTemplate.exchange(
+            "/answerCallbackQuery",
+            HttpMethod.POST,
+            HttpEntity(
+                LinkedMultiValueMap<String, Any>().apply {
+                    add("callback_query_id", callbackQueryId)
+                }
+            ),
+            object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {}
+        )
+
         return response.body!!.result!!
     }
 
