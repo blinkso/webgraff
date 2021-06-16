@@ -83,7 +83,7 @@ class HandlersFilter(
         val validation = currentStep.validation
 
         val answer = try {
-            validation(text)
+            validation(state, text)
         } catch (e: ValidationException) {
             val question = currentStep.question(state)
             return TelegramMessageSendRequest(0, e.message, TelegramParseMode.MARKDOWN, question.replyKeyboard)
