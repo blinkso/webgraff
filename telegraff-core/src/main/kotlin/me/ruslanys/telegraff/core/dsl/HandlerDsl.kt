@@ -91,9 +91,9 @@ class StepDsl<T : Any>(val key: String) {
         return Step(
             key,
             question ?: throw HandlerException("Step question must not be null!"),
-            validation ?: {
+            validation ?: { _, answer ->
                 @Suppress("UNCHECKED_CAST")
-                it as T
+                answer as T
             },
             next ?: defaultNext
         )
@@ -101,10 +101,8 @@ class StepDsl<T : Any>(val key: String) {
 
 }
 
-
 typealias ProcessBlock = (state: HandlerState, answers: Map<String, Any>) -> TelegramSendRequest?
-
 typealias QuestionBlock = (HandlerState) -> TelegramSendRequest
-typealias ValidationBlock<T> = (String) -> T
+typealias ValidationBlock<T> = (state: HandlerState, answer: String) -> T
 typealias NextStepBlock = (HandlerState) -> String?
 typealias HandlerDslWrapper = (GenericApplicationContext) -> Handler
