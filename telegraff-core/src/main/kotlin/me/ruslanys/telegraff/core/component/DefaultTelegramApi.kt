@@ -6,6 +6,7 @@ import me.ruslanys.telegraff.core.dto.TelegramUpdate
 import me.ruslanys.telegraff.core.dto.TelegramUser
 import me.ruslanys.telegraff.core.dto.request.*
 import me.ruslanys.telegraff.core.util.EMPTY
+import org.slf4j.LoggerFactory
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.core.io.ByteArrayResource
@@ -29,6 +30,10 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
             object : ParameterizedTypeReference<TelegramResponse<TelegramUser>>() {}
         )
 
+        response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
+            log.error("getMe: $message")
+        }
+
         return response.body!!.result!!
     }
 
@@ -44,6 +49,10 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
             object : ParameterizedTypeReference<TelegramResponse<List<TelegramUpdate>>>() {}
         )
 
+        response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
+            log.error("getUpdates: $message")
+        }
+
         return response.body!!.result!!
     }
 
@@ -56,6 +65,10 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
             HttpEntity(params),
             object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {}
         )
+
+        response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
+            log.error("setWebhook: $message")
+        }
 
         return response.body!!.result!!
     }
@@ -71,6 +84,10 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
             HttpEntity(request),
             object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {}
         )
+
+        response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
+            log.error("sendMessage: $message")
+        }
 
         return response.body!!.result!!
     }
@@ -129,6 +146,10 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
             object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {}
         )
 
+        response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
+            log.error("sendChatAction: $message")
+        }
+
         return response.body!!.result!!
     }
 
@@ -144,6 +165,10 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
             object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {}
         )
 
+        response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
+            log.error("sendAnswerCallbackQuery: $message")
+        }
+
         return response.body!!.result!!
     }
 
@@ -156,4 +181,7 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
             request.parseMode?.let { add("parse_mode", request.parseMode.name) }
         }
 
+    private companion object {
+        private val log = LoggerFactory.getLogger(DefaultTelegramApi::class.java)
+    }
 }
