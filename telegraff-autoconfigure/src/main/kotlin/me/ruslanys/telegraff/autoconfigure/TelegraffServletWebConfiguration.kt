@@ -97,10 +97,9 @@ class TelegraffServletWebConfiguration(val telegramProperties: TelegramPropertie
     @ConditionalOnMissingBean(HandlersFilter::class)
     fun handlersFilter(
         telegramApi: TelegramApi,
-        objectMapper: ObjectMapper,
         handlersFactory: HandlersFactory
     ): HandlersFilter {
-        return HandlersFilter(telegramApi, objectMapper, handlersFactory)
+        return HandlersFilter(telegramApi, handlersFactory)
     }
 
     @Bean

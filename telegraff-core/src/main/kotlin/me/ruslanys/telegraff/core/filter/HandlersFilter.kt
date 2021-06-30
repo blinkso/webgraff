@@ -1,6 +1,5 @@
 package me.ruslanys.telegraff.core.filter
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import me.ruslanys.telegraff.core.annotation.TelegramFilterOrder
 import me.ruslanys.telegraff.core.component.TelegramApi
 import me.ruslanys.telegraff.core.dsl.Handler
@@ -20,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap
 @TelegramFilterOrder(HANDLERS_FILTER_ORDER)
 class HandlersFilter(
     private val telegramApi: TelegramApi,
-    private val objectMapper: ObjectMapper,
     handlersFactory: HandlersFactory
 ) : TelegramFilter {
 
@@ -71,10 +69,10 @@ class HandlersFilter(
 
     private fun handleContinuation(state: HandlerState, message: TelegramMessage): TelegramSendRequest? {
         val currentStep = state.currentStep!!
-        // In case if it was a contact request question json of user contact will be returned and validation block will be responsible
+        // In case if it was a contact request question phone number of user contact will be returned and validation block will receive telegram contact
         // for it's validation
         val text = if (message.contact != null) {
-            objectMapper.writeValueAsString(message.contact) ?: message.text!!
+            message.contact.phoneNumber ?: message.text!!
         } else {
             message.text!!
         }
@@ -83,7 +81,7 @@ class HandlersFilter(
         val validation = currentStep.validation
 
         val answer = try {
-            validation(state, text)
+            validation(state, text, message.contact)
         } catch (e: ValidationException) {
             val question = currentStep.question(state)
             return TelegramMessageSendRequest(0, e.message, TelegramParseMode.MARKDOWN, question.replyKeyboard)
