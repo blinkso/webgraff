@@ -1,7 +1,11 @@
 version: '3'
 
 services:
-  blink_telegram:
-    image: blink_telegram
+  blink-telegram:
+    image: telegram
+    depends_on:
+      - blink-spring
     ports:
       - 8081:8081
+    environment:
+      - _JAVA_OPTIONS=-Xmx2048m -Xms2048m -XX:MaxPermSize=1024m
