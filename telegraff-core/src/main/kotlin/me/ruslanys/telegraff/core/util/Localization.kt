@@ -5,12 +5,13 @@ import java.util.*
 fun String.localized(
     locale: Locale? = null
 ): String {
-    val resourceBundle = ResourceBundle.getBundle(
-        "strings",
-        locale ?: DEFAULT_LOCALE,
-        UTF8Control()
-    )
-    return resourceBundle.getString(this)
+    return runCatching {
+        ResourceBundle.getBundle(
+            "strings",
+            locale ?: DEFAULT_LOCALE,
+            UTF8Control()
+        ).getString(this)
+    }.getOrNull() ?: String.EMPTY
 }
 
 /**

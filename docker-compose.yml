@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  blink_telegram:
+    image: blink_telegram
+    ports:
+      - 8081:8081

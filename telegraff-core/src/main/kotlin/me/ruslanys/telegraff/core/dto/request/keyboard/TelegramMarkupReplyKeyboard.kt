@@ -19,7 +19,7 @@ class TelegramMarkupReplyKeyboard(
 
     val keyboard: List<List<String>> = answers.asSequence()
         .chunked(columns)
-        .plusElement(listOf("cancel_telegram".localized(locale)))
+        .plusElement(listOf("cancel_telegram".localized(locale).takeIf { it.isNotEmpty() } ?: "Отмена"))
         .toList()
 
     companion object {
