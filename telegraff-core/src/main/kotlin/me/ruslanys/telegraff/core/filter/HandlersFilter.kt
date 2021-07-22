@@ -120,6 +120,7 @@ class HandlersFilter(
             is TelegramMessageSendRequest -> telegramApi.sendMessage(response)
             is TelegramVoiceSendRequest -> telegramApi.sendVoice(response)
             is TelegramPhotoSendRequest -> telegramApi.sendPhoto(response)
+            is TelegramDocumentSendRequest -> telegramApi.sendDocument(response)
         }
     }
 

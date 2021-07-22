@@ -3,10 +3,7 @@ package me.ruslanys.telegraff.core.component
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.dto.TelegramUpdate
 import me.ruslanys.telegraff.core.dto.TelegramUser
-import me.ruslanys.telegraff.core.dto.request.TelegramChatActionRequest
-import me.ruslanys.telegraff.core.dto.request.TelegramMessageSendRequest
-import me.ruslanys.telegraff.core.dto.request.TelegramPhotoSendRequest
-import me.ruslanys.telegraff.core.dto.request.TelegramVoiceSendRequest
+import me.ruslanys.telegraff.core.dto.request.*
 
 interface TelegramApi {
 
@@ -29,6 +26,8 @@ interface TelegramApi {
     fun sendMessage(request: TelegramMessageSendRequest): TelegramMessage
 
     fun sendPhoto(request: TelegramPhotoSendRequest): TelegramMessage
+
+    fun sendDocument(request: TelegramDocumentSendRequest): TelegramMessage
 
     fun sendVoice(request: TelegramVoiceSendRequest): TelegramMessage
 

@@ -92,6 +92,29 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
         return response.body!!.result!!
     }
 
+    override fun sendDocument(request: TelegramDocumentSendRequest): TelegramMessage {
+        val formData = createFormData(request).apply {
+            add("document", object : ByteArrayResource(request.document) {
+                override fun getFilename(): String {
+                    return request.name
+                }
+            })
+        }
+
+        // --
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.MULTIPART_FORM_DATA
+
+        val entity = restTemplate.exchange(
+            "/sendDocument",
+            HttpMethod.POST,
+            HttpEntity(formData, headers),
+            object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {}
+        )
+
+        return entity.body!!.result!!
+    }
+
     override fun sendPhoto(request: TelegramPhotoSendRequest): TelegramMessage {
         val formData = createFormData(request).apply {
             add("photo", object : ByteArrayResource(request.photo) {
