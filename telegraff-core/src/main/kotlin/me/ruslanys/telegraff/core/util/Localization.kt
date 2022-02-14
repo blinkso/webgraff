@@ -26,15 +26,18 @@ fun String.allLocalizedValues(): Set<String> {
         ).getString(this),
         ResourceBundle.getBundle(
             "strings",
-            Locale("en"),
+            Locale(ENGLISH_LOCALE),
             UTF8Control()
         ).getString(this),
         ResourceBundle.getBundle(
             "strings",
-            Locale("uk"),
+            Locale(UKRAINIAN_LOCALE),
             UTF8Control()
         ).getString(this)
     )
 }
 
-val DEFAULT_LOCALE = Locale("ru")
+const val RUSSIAN_LOCALE = "ru"
+const val UKRAINIAN_LOCALE = "uk"
+const val ENGLISH_LOCALE = "en"
+val DEFAULT_LOCALE = Locale(RUSSIAN_LOCALE)

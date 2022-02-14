@@ -54,9 +54,10 @@ class HandlersFilter(
             log.error("Error during handler processing", e)
 
             clearState(message.chat)
+            val locale = Locale(message.user?.languageCode ?: DEFAULT_LOCALE.toLanguageTag())
             MarkdownMessage(
-                "telegram_something_went_wrong".localized(),
-                locale = Locale(message.user?.languageCode ?: DEFAULT_LOCALE.toLanguageTag())
+                "telegram_something_went_wrong".localized(locale),
+                cancelButtonText = "telegram_cancel".localized(locale)
             )
         }
 
