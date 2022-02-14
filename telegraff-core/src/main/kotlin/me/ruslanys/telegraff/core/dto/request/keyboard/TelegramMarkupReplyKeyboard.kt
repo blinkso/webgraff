@@ -16,9 +16,11 @@ class TelegramMarkupReplyKeyboard(
 
     val keyboard: List<List<String>> = answers.asSequence()
         .chunked(columns)
-        .apply {
+        .let { keyboardButtons ->
             if (cancelButtonText != null) {
-                plusElement(cancelButtonText)
+                keyboardButtons.plusElement(listOf(cancelButtonText))
+            } else {
+                keyboardButtons
             }
         }
         .toList()

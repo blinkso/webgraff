@@ -1,14 +1,11 @@
 package me.ruslanys.telegraff.core.dto.request.keyboard
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import me.ruslanys.telegraff.core.util.DEFAULT_LOCALE
-import me.ruslanys.telegraff.core.util.localized
-import java.util.*
 
 class TelegramCancelReplyKeyboard(
-    locale: Locale? = DEFAULT_LOCALE,
+    cancelButtonText: String,
     @get:JsonProperty("text")
-    val text: String = "cancel_telegram".localized(locale)
+    val text: String = cancelButtonText
 ) : TelegramReplyKeyboard() {
 
     override fun equals(other: Any?): Boolean {
