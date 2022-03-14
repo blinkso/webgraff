@@ -40,4 +40,4 @@ fun String.allLocalizedValues(): Set<String> {
 const val RUSSIAN_LOCALE = "ru"
 const val UKRAINIAN_LOCALE = "uk"
 const val ENGLISH_LOCALE = "en"
-val DEFAULT_LOCALE = Locale(RUSSIAN_LOCALE)
+val DEFAULT_LOCALE = Locale(UKRAINIAN_LOCALE)
