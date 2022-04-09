@@ -31,7 +31,7 @@ fun String.allLocalizedValues(): Set<String> {
         ).getString(this),
         ResourceBundle.getBundle(
             "strings",
-            Locale(UKRAINIAN_LOCALE),
+            Locale(RUSSIAN_LOCALE),
             UTF8Control()
         ).getString(this)
     )
