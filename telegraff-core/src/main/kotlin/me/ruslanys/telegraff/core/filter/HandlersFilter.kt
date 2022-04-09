@@ -133,7 +133,7 @@ class HandlersFilter(
     }
 
     private fun findHandler(message: TelegramMessage): Handler? {
-        val text = message.text?.toLowerCase() ?: return null
+        val text = message.text?.toLowerCase() ?: message.contact?.phoneNumber ?: return null
         for (entry in handlers) {
             if (text.startsWith(entry.key)) {
                 clearState(message.chat)
