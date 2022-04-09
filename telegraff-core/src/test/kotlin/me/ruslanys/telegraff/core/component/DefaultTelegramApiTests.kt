@@ -122,8 +122,7 @@ class DefaultTelegramApiTests {
                       "disable_web_page_preview": false,
                       "reply_markup": {
                         "keyboard": [
-                          ["Хорошо", "Пойдет"],
-                          ["Отмена"]
+                          ["Хорошо", "Пойдет"]
                         ],
                         "resize_keyboard": true,
                         "one_time_keyboard": true,
