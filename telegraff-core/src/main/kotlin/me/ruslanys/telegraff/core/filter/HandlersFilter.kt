@@ -8,6 +8,7 @@ import me.ruslanys.telegraff.core.dsl.HandlersFactory
 import me.ruslanys.telegraff.core.dto.TelegramChat
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.dto.request.*
+import me.ruslanys.telegraff.core.exception.CancelException
 import me.ruslanys.telegraff.core.exception.ValidationException
 import me.ruslanys.telegraff.core.filter.FilterOrders.Companion.HANDLERS_FILTER_ORDER
 import me.ruslanys.telegraff.core.util.DEFAULT_LOCALE
@@ -50,6 +51,9 @@ class HandlersFilter(
             } else {
                 handleContinuation(state, message)
             }
+        } catch (e: CancelException) {
+            clearState(message.chat)
+            e.messageRequest
         } catch (e: Exception) {
             log.error("Error during handler processing", e)
 
@@ -86,6 +90,9 @@ class HandlersFilter(
         } catch (e: ValidationException) {
             val question = currentStep.question(state)
             return TelegramMessageSendRequest(0, e.message, TelegramParseMode.MARKDOWN, question.replyKeyboard)
+        } catch (e: CancelException) {
+            clearState(message.chat)
+            return e.messageRequest
         }
         state.answers[currentStep.key] = answer
 
