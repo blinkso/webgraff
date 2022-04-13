@@ -15,3 +15,9 @@ fun Any.anyToLong(): Long {
 fun TelegramApi.getCurrentChatId(): Long? {
     return getUpdates().getOrNull(0)?.message?.chat?.id
 }
+
+fun String.readClasspathResource(): ByteArray {
+    return javaClass.classLoader.getResourceAsStream(this).use {
+        it.readBytes()
+    }
+}
