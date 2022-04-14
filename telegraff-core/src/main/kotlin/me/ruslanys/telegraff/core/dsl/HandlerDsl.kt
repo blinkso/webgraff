@@ -61,6 +61,12 @@ class HandlerDsl(private val commands: List<String>, val context: GenericApplica
     inline fun <reified T> getBean(): T {
         return context.getBean(T::class.java)
     }
+
+    fun readClasspathResource(path: String): ByteArray {
+        return javaClass.classLoader.getResourceAsStream(path).use {
+            it.readBytes()
+        }
+    }
 }
 
 class StepDsl<T : Any>(val key: String) {
