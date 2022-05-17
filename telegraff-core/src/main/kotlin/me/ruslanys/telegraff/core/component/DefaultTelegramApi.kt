@@ -64,7 +64,7 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
         )
 
         response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
-            log.error("getUpdates: $message")
+            log.error("getFile: $message")
         }
 
         return response.body!!.result!!
@@ -75,13 +75,13 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
 
         val response = restTemplate.exchange(
             "/$filePath",
-            HttpMethod.POST,
+            HttpMethod.GET,
             HttpEntity(params),
             object : ParameterizedTypeReference<TelegramResponse<ByteArray>>() {}
         )
 
         response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
-            log.error("getUpdates: $message")
+            log.error("getFileByPath: $message")
         }
 
         return response.body!!.result!!
