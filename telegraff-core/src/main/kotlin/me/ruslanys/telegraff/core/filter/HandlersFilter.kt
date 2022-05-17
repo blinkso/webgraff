@@ -78,6 +78,8 @@ class HandlersFilter(
         // for it's validation
         val text = if (message.contact != null) {
             message.contact.phoneNumber ?: message.text!!
+        } else if (message.photo != null) {
+            message.photo.minBy { it.size ?: 0 }?.id ?: message.text!!
         } else {
             message.text!!
         }
@@ -86,7 +88,7 @@ class HandlersFilter(
         val validation = currentStep.validation
 
         val answer = try {
-            validation(state, text, message.contact)
+            validation(state, text, message.contact, message.photo)
         } catch (e: ValidationException) {
             val question = currentStep.question(state)
             return TelegramMessageSendRequest(0, e.message, TelegramParseMode.MARKDOWN, question.replyKeyboard)
@@ -133,7 +135,9 @@ class HandlersFilter(
     }
 
     private fun findHandler(message: TelegramMessage): Handler? {
-        val text = message.text?.toLowerCase() ?: message.contact?.phoneNumber ?: return null
+        val text =
+            message.text?.toLowerCase() ?: message.contact?.phoneNumber ?: message.photo?.minBy { it.size ?: 0 }?.id
+            ?: return null
         for (entry in handlers) {
             if (text.startsWith(entry.key)) {
                 clearState(message.chat)
