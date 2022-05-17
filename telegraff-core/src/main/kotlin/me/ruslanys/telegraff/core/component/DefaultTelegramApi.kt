@@ -18,6 +18,9 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
     private val restTemplate = restTemplateBuilder
         .rootUri("https://api.telegram.org/bot$telegramAccessKey")
         .build()
+    private val fileRestTemplate = restTemplateBuilder
+        .rootUri("https://api.telegram.org/file/bot$telegramAccessKey")
+        .build()
 
     override fun getMe(): TelegramUser {
         val response = restTemplate.exchange(
@@ -73,18 +76,14 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
     override fun getFileByPath(filePath: String): ByteArray {
         val params = mapOf<String, String>()
 
-        val response = restTemplate.exchange(
+        val response = fileRestTemplate.exchange(
             "/$filePath",
             HttpMethod.GET,
             HttpEntity(params),
-            object : ParameterizedTypeReference<TelegramResponse<ByteArray>>() {}
+            object : ParameterizedTypeReference<ByteArray>() {}
         )
 
-        response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
-            log.error("getFileByPath: $message")
-        }
-
-        return response.body!!.result!!
+        return response.body!!
     }
 
     override fun setWebhook(url: String): Boolean {
