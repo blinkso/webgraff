@@ -18,10 +18,13 @@ data class TelegramMessage(
     @JsonProperty("contact")
     val contact: TelegramContact?,
 
+    @JsonProperty("photo")
+    val photo: List<TelegramPhoto>?,
+
     @JsonProperty("text")
     var text: String?,
 
     // Used for callback populating and filtering
     @JsonProperty("callback_query")
-    var callbackQuery: TelegramCallbackQuery? = null
+    var callbackQuery: TelegramCallbackQuery?
 )

@@ -1,5 +1,6 @@
 package me.ruslanys.telegraff.core.component
 
+import me.ruslanys.telegraff.core.dto.TelegramFile
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.dto.TelegramUpdate
 import me.ruslanys.telegraff.core.dto.TelegramUser
@@ -18,6 +19,10 @@ interface TelegramApi {
     fun getUpdates(): List<TelegramUpdate> {
         return getUpdates(null)
     }
+
+    fun getFile(fileId: String): TelegramFile
+
+    fun getFileByPath(filePath: String): ByteArray
 
     fun setWebhook(url: String): Boolean
 

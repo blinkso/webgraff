@@ -1,6 +1,7 @@
 package me.ruslanys.telegraff.core.dsl
 
 import me.ruslanys.telegraff.core.dto.TelegramContact
+import me.ruslanys.telegraff.core.dto.TelegramPhoto
 import me.ruslanys.telegraff.core.dto.request.TelegramSendRequest
 import me.ruslanys.telegraff.core.exception.HandlerException
 import org.springframework.context.support.GenericApplicationContext
@@ -93,7 +94,7 @@ class StepDsl<T : Any>(val key: String) {
         return Step(
             key,
             question ?: throw HandlerException("Step question must not be null!"),
-            validation ?: { _, answer, _ ->
+            validation ?: { _, answer, _, _ ->
                 @Suppress("UNCHECKED_CAST")
                 answer as T
             },
@@ -105,6 +106,6 @@ class StepDsl<T : Any>(val key: String) {
 
 typealias ProcessBlock = (state: HandlerState, answers: Map<String, Any>) -> TelegramSendRequest?
 typealias QuestionBlock = (HandlerState) -> TelegramSendRequest
-typealias ValidationBlock<T> = (state: HandlerState, answer: String, contact: TelegramContact?) -> T
+typealias ValidationBlock<T> = (state: HandlerState, answer: String, contact: TelegramContact?, photo: List<TelegramPhoto>?) -> T
 typealias NextStepBlock = (HandlerState) -> String?
 typealias HandlerDslWrapper = (GenericApplicationContext) -> Handler

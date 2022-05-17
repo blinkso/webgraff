@@ -1,9 +1,6 @@
 package me.ruslanys.telegraff.core.component
 
-import me.ruslanys.telegraff.core.dto.TelegramMessage
-import me.ruslanys.telegraff.core.dto.TelegramResponse
-import me.ruslanys.telegraff.core.dto.TelegramUpdate
-import me.ruslanys.telegraff.core.dto.TelegramUser
+import me.ruslanys.telegraff.core.dto.*
 import me.ruslanys.telegraff.core.dto.request.*
 import me.ruslanys.telegraff.core.util.EMPTY
 import org.slf4j.LoggerFactory
@@ -20,6 +17,9 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
 
     private val restTemplate = restTemplateBuilder
         .rootUri("https://api.telegram.org/bot$telegramAccessKey")
+        .build()
+    private val fileRestTemplate = restTemplateBuilder
+        .rootUri("https://api.telegram.org/file/bot$telegramAccessKey")
         .build()
 
     override fun getMe(): TelegramUser {
@@ -54,6 +54,36 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
         }
 
         return response.body!!.result!!
+    }
+
+    override fun getFile(fileId: String): TelegramFile {
+        val params = hashMapOf("file_id" to fileId)
+
+        val response = restTemplate.exchange(
+            "/getFile",
+            HttpMethod.POST,
+            HttpEntity(params),
+            object : ParameterizedTypeReference<TelegramResponse<TelegramFile>>() {}
+        )
+
+        response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
+            log.error("getFile: $message")
+        }
+
+        return response.body!!.result!!
+    }
+
+    override fun getFileByPath(filePath: String): ByteArray {
+        val params = mapOf<String, String>()
+
+        val response = fileRestTemplate.exchange(
+            "/$filePath",
+            HttpMethod.GET,
+            HttpEntity(params),
+            object : ParameterizedTypeReference<ByteArray>() {}
+        )
+
+        return response.body!!
     }
 
     override fun setWebhook(url: String): Boolean {
