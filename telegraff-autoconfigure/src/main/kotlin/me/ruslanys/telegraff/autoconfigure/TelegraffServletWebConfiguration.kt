@@ -1,8 +1,5 @@
 package me.ruslanys.telegraff.autoconfigure
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import me.ruslanys.telegraff.autoconfigure.property.TelegramProperties
 import me.ruslanys.telegraff.core.client.TelegramClient
 import me.ruslanys.telegraff.core.client.TelegramPollingClient
@@ -20,14 +17,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration
 import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.DependsOn
 import org.springframework.context.support.GenericApplicationContext
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
-import org.springframework.web.filter.CharacterEncodingFilter
 
 /**
  * Configuration for Telegraff when used in a servlet web context.
@@ -109,35 +102,5 @@ class TelegraffServletWebConfiguration(val telegramProperties: TelegramPropertie
     @ConditionalOnMissingBean(CallbackQueryAnswerFilter::class)
     fun callbackQueryFilter(telegramApi: TelegramApi): CallbackQueryAnswerFilter {
         return CallbackQueryAnswerFilter(telegramApi)
-    }
-
-    // endregion
-
-    @Bean
-    fun objectMapperBuilder(): Jackson2ObjectMapperBuilder {
-        return Jackson2ObjectMapperBuilder().modulesToInstall(KotlinModule())
-    }
-
-    @Bean
-    fun objectMapper(): ObjectMapper {
-        return ObjectMapper().apply {
-            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        }
-    }
-
-    @Bean
-    fun characterEncodingFilter(): CharacterEncodingFilter {
-        return CharacterEncodingFilter("UTF-8", true, true)
-    }
-
-    @Bean
-    @DependsOn("characterEncodingFilter")
-    fun characterEncodingFilterRegistrationBean(characterEncodingFilter: CharacterEncodingFilter): FilterRegistrationBean<CharacterEncodingFilter> {
-        val result = FilterRegistrationBean<CharacterEncodingFilter>()
-        result.filter = characterEncodingFilter
-        result.order = 1
-        result.addUrlPatterns("/*")
-        result.setName("characterEncodingFilter")
-        return result
     }
 }
