@@ -57,7 +57,7 @@ class DefaultHandlersFactory(
 
     private fun addHandler(handler: Handler) {
         for (rawCommand in handler.commands) {
-            val command = rawCommand.toLowerCase()
+            val command = rawCommand.lowercase()
             val previousValue = handlers.put(command, handler)
             if (previousValue != null) {
                 throw IllegalArgumentException("$command is already in use.")
