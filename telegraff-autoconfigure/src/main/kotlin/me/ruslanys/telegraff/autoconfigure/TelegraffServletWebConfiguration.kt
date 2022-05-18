@@ -20,11 +20,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration
 import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.DependsOn
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
+import org.springframework.web.filter.CharacterEncodingFilter
 
 /**
  * Configuration for Telegraff when used in a servlet web context.
@@ -122,4 +125,18 @@ class TelegraffServletWebConfiguration(val telegramProperties: TelegramPropertie
         }
     }
 
+    @Bean
+    fun characterEncodingFilter(): CharacterEncodingFilter {
+        return CharacterEncodingFilter("UTF-8", true, true)
+    }
+
+    @Bean
+    @DependsOn("characterEncodingFilter")
+    fun filterRegistrationBean(characterEncodingFilter: CharacterEncodingFilter): FilterRegistrationBean<CharacterEncodingFilter> {
+        val result = FilterRegistrationBean<CharacterEncodingFilter>()
+        result.filter = characterEncodingFilter
+        result.addUrlPatterns("/*")
+        result.setName("characterEncodingFilter")
+        return result
+    }
 }
