@@ -132,9 +132,10 @@ class TelegraffServletWebConfiguration(val telegramProperties: TelegramPropertie
 
     @Bean
     @DependsOn("characterEncodingFilter")
-    fun filterRegistrationBean(characterEncodingFilter: CharacterEncodingFilter): FilterRegistrationBean<CharacterEncodingFilter> {
+    fun characterEncodingFilterRegistrationBean(characterEncodingFilter: CharacterEncodingFilter): FilterRegistrationBean<CharacterEncodingFilter> {
         val result = FilterRegistrationBean<CharacterEncodingFilter>()
         result.filter = characterEncodingFilter
+        result.order = 1
         result.addUrlPatterns("/*")
         result.setName("characterEncodingFilter")
         return result
