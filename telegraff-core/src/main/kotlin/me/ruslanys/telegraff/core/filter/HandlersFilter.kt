@@ -74,15 +74,7 @@ class HandlersFilter(
 
     private fun handleContinuation(state: HandlerState, message: TelegramMessage): TelegramSendRequest? {
         val currentStep = state.currentStep!!
-        // In case if it was a contact request question phone number of user contact will be returned and validation block will receive telegram contact
-        // for it's validation
-        val text = if (message.contact != null) {
-            message.contact.phoneNumber ?: message.text!!
-        } else if (message.photo != null) {
-            message.photo.minBy { it.size ?: 0 }?.id ?: message.text!!
-        } else {
-            message.text!!
-        }
+        val text = message.getMessageText()!!
 
         // validation
         val validation = currentStep.validation
@@ -136,8 +128,9 @@ class HandlersFilter(
 
     private fun findHandler(message: TelegramMessage): Handler? {
         val text =
-            message.text?.toLowerCase() ?: message.contact?.phoneNumber ?: message.photo?.minBy { it.size ?: 0 }?.id
-            ?: return null
+            message.getMessageText()
+                ?.toLowerCase()
+                ?: return null
         for (entry in handlers) {
             if (text.startsWith(entry.key)) {
                 clearState(message.chat)

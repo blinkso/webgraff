@@ -25,6 +25,13 @@ data class TelegramContact(
         null
     )
 
+    constructor(phoneNumber: String) : this(
+        0L,
+        phoneNumber,
+        null,
+        null
+    )
+
     fun getUserFullName(): String = firstName.plus(
         if (lastName?.isNotEmpty() == true) {
             " $lastName"
