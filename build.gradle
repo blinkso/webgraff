@@ -14,7 +14,7 @@ ext {
 }
 
 allprojects {
-    group = 'me.ruslanys.telegraff'
+    group = 'ua.blink.telegraff'
     version = '1.0.0'
 
     repositories {
@@ -43,10 +43,6 @@ subprojects {
         compile("org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable")
 
         compile("net.java.dev.jna:jna:5.11.0")
-
-        // Tests
-        testCompile("org.springframework.boot:spring-boot-starter-test")
-        testCompile("org.jetbrains.kotlin:kotlin-test")
     }
 
     dependencyManagement {
@@ -58,15 +54,6 @@ subprojects {
         main.kotlin.srcDirs += 'src/main/kotlin'
         test.kotlin.srcDirs += 'src/test/kotlin'
     }
-
-    // Jacoco
-    jacocoTestReport {
-        reports {
-            xml.enabled = true
-            html.enabled = true
-        }
-    }
-    check.dependsOn jacocoTestReport
 
     // IDEA
     idea {
