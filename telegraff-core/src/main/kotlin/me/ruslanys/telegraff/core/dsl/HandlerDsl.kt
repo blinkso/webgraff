@@ -104,8 +104,8 @@ class StepDsl<T : Any>(val key: String) {
 
 }
 
-typealias ProcessBlock = (state: HandlerState, answers: Map<String, Any>) -> TelegramSendRequest?
-typealias QuestionBlock = (HandlerState) -> TelegramSendRequest
-typealias ValidationBlock<T> = (state: HandlerState, answer: String, contact: TelegramContact?, photo: List<TelegramPhoto>?) -> T
-typealias NextStepBlock = (HandlerState) -> String?
-typealias HandlerDslWrapper = (GenericApplicationContext) -> Handler
+typealias ProcessBlock = suspend (state: HandlerState, answers: Map<String, Any>) -> TelegramSendRequest?
+typealias QuestionBlock = suspend (HandlerState) -> TelegramSendRequest
+typealias ValidationBlock<T> = suspend (state: HandlerState, answer: String, contact: TelegramContact?, photo: List<TelegramPhoto>?) -> T
+typealias NextStepBlock = suspend (HandlerState) -> String?
+typealias HandlerDslWrapper = suspend (GenericApplicationContext) -> Handler

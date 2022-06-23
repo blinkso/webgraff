@@ -9,13 +9,10 @@ import me.ruslanys.telegraff.core.component.TelegramApi
 import me.ruslanys.telegraff.core.dsl.DefaultHandlersFactory
 import me.ruslanys.telegraff.core.dsl.HandlersFactory
 import me.ruslanys.telegraff.core.filter.*
-import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
-import org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
@@ -28,10 +25,16 @@ import org.springframework.context.support.GenericApplicationContext
  * @author Ruslan Molchanov
  */
 @Configuration
-@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @ConditionalOnClass(TelegramPollingClient::class, TelegramWebhookClient::class)
-@AutoConfigureAfter(WebMvcAutoConfiguration::class, RestTemplateAutoConfiguration::class)
 class TelegraffServletWebConfiguration(val telegramProperties: TelegramProperties) {
+
+    @Bean
+    fun restTemplateBuilder(): RestTemplateBuilder {
+        // Need to provide a rest template builder because
+        // @RestTemplateAutoConfiguration does not work with webflux
+        return RestTemplateBuilder()
+    }
 
     @Bean
     @ConditionalOnMissingBean(TelegramApi::class)

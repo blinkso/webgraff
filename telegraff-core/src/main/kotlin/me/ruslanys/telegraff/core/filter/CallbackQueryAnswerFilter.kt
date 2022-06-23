@@ -11,7 +11,7 @@ class CallbackQueryAnswerFilter(
     private val telegramApi: TelegramApi
 ) : TelegramFilter {
 
-    override fun handleMessage(message: TelegramMessage, chain: TelegramFilterChain) {
+    override suspend fun handleMessage(message: TelegramMessage, chain: TelegramFilterChain) {
         if (message.callbackQuery != null) {
             // Sending callback query answer to telegram api
             try {
