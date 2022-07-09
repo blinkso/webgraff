@@ -1,7 +1,6 @@
 rootProject.name = 'telegraff'
 
 include 'blink-telegram-bot'
-//include 'yakaboo-telegram-bot'
 include 'telegraff-core'
 include 'telegraff-autoconfigure'
 include 'telegraff-starter'

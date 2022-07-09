@@ -1,5 +1,6 @@
 package me.ruslanys.telegraff.core.filter
 
+import kotlinx.coroutines.CoroutineScope
 import me.ruslanys.telegraff.core.annotation.TelegramFilterOrder
 import me.ruslanys.telegraff.core.component.TelegramApi
 import me.ruslanys.telegraff.core.dto.TelegramMessage
@@ -11,7 +12,11 @@ class CallbackQueryAnswerFilter(
     private val telegramApi: TelegramApi
 ) : TelegramFilter {
 
-    override suspend fun handleMessage(message: TelegramMessage, chain: TelegramFilterChain) {
+    override suspend fun handleMessage(
+        message: TelegramMessage,
+        chain: TelegramFilterChain,
+        lifecycleScope: CoroutineScope
+    ) {
         if (message.callbackQuery != null) {
             // Sending callback query answer to telegram api
             try {
@@ -19,9 +24,9 @@ class CallbackQueryAnswerFilter(
             } catch (e: Throwable) {
                 log.error("Error sending callback query answer: ${e.printStackTrace()}")
             }
-            chain.doFilter(message)
+            chain.doFilter(message, lifecycleScope)
         } else {
-            chain.doFilter(message)
+            chain.doFilter(message, lifecycleScope)
         }
     }
 

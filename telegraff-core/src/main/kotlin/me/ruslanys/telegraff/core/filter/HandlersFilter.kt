@@ -1,5 +1,6 @@
 package me.ruslanys.telegraff.core.filter
 
+import kotlinx.coroutines.CoroutineScope
 import me.ruslanys.telegraff.core.annotation.TelegramFilterOrder
 import me.ruslanys.telegraff.core.component.TelegramApi
 import me.ruslanys.telegraff.core.dsl.Handler
@@ -26,10 +27,14 @@ class HandlersFilter(
     private val handlers: Map<String, Handler> = handlersFactory.getHandlers()
     private val states: MutableMap<Long, HandlerState> = ConcurrentHashMap()
 
-    override suspend fun handleMessage(message: TelegramMessage, chain: TelegramFilterChain) {
+    override suspend fun handleMessage(
+        message: TelegramMessage,
+        chain: TelegramFilterChain,
+        lifecycleScope: CoroutineScope
+    ) {
         val handler = findHandler(message)
         if (handler == null) {
-            chain.doFilter(message)
+            chain.doFilter(message, lifecycleScope)
             return
         }
 
@@ -38,11 +43,12 @@ class HandlersFilter(
         val response = try {
             if (state == null) {
                 val newState = HandlerState(
-                    message.chat.apply {
+                    chat = message.chat.apply {
                         // Populating language code in chat entity for further usage
                         languageCode = message.user?.languageCode
                     },
-                    handler
+                    handler = handler,
+                    lifecycleScope = lifecycleScope
                 )
                 states[message.chat.id] = newState
 

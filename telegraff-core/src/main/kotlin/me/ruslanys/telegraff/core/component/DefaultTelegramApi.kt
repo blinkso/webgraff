@@ -2,7 +2,6 @@ package me.ruslanys.telegraff.core.component
 
 import me.ruslanys.telegraff.core.dto.*
 import me.ruslanys.telegraff.core.dto.request.*
-import me.ruslanys.telegraff.core.util.EMPTY
 import org.slf4j.LoggerFactory
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.core.ParameterizedTypeReference
@@ -104,7 +103,7 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
     }
 
     override fun removeWebhook(): Boolean {
-        return setWebhook(String.EMPTY)
+        return setWebhook("")
     }
 
     override fun sendMessage(request: TelegramMessageSendRequest): TelegramMessage {
