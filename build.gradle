@@ -9,7 +9,7 @@ plugins {
 
 ext {
     kotlinVersion = '1.6.20'
-    springBootVersion = '2.3.5.RELEASE'
+    springBootVersion = '2.7.1'
 }
 
 allprojects {
