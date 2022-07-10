@@ -14,23 +14,17 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
     private val restTemplate = WebClient.builder()
         .baseUrl("https://api.telegram.org/bot$telegramAccessKey")
         .build()
-
-    //        restTemplateBuilder
-//        .rootUri("https://api.telegram.org/bot$telegramAccessKey")
-//        .build()
     private val fileRestTemplate = WebClient.builder()
         .baseUrl("https://api.telegram.org/file/bot$telegramAccessKey")
         .build()
-//        restTemplateBuilder
-//        .rootUri("https://api.telegram.org/file/bot$telegramAccessKey")
-//        .build()
 
     override fun getMe(): TelegramUser {
         return restTemplate.get()
             .uri("/getMe")
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramUser>>() {})
-            .block()!!
+            .toFuture()
+            .get()
             .result!!
     }
 
@@ -45,7 +39,8 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
             .body(BodyInserters.fromValue(params))
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<List<TelegramUpdate>>>() {})
-            .block()!!
+            .toFuture()
+            .get()
             .result!!
     }
 
@@ -58,7 +53,8 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
             .body(BodyInserters.fromValue(params))
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramFile>>() {})
-            .block()!!
+            .toFuture()
+            .get()
             .result!!
     }
 
@@ -69,7 +65,8 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
             .uri("/$filePath", params)
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<ByteArray>() {})
-            .block()!!
+            .toFuture()
+            .get()
     }
 
     override fun setWebhook(url: String): Boolean {
@@ -81,7 +78,8 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
             .body(BodyInserters.fromValue(params))
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
-            .block()!!
+            .toFuture()
+            .get()
             .result!!
     }
 
@@ -96,7 +94,8 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
             .body(BodyInserters.fromValue(request))
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
-            .block()!!
+            .toFuture()
+            .get()
             .result!!
     }
 
@@ -118,7 +117,8 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
 //            }
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
-            .block()!!
+            .toFuture()
+            .get()
             .result!!
     }
 
@@ -140,7 +140,8 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
 //            }
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
-            .block()!!
+            .toFuture()
+            .get()
             .result!!
     }
 
@@ -162,7 +163,8 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
 //            }
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
-            .block()!!
+            .toFuture()
+            .get()
             .result!!
     }
 
@@ -173,7 +175,8 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
             .body(BodyInserters.fromValue(request))
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
-            .block()!!
+            .toFuture()
+            .get()
             .result!!
     }
 
@@ -186,7 +189,8 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
             .body(BodyInserters.fromValue(params))
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
-            .block()!!
+            .toFuture()
+            .get()
             .result!!
     }
 
