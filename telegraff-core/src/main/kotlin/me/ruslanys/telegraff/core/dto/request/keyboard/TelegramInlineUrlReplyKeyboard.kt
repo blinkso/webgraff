@@ -1,15 +1,14 @@
 package me.ruslanys.telegraff.core.dto.request.keyboard
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import me.ruslanys.telegraff.core.util.EMPTY
 
 class TelegramInlineUrlReplyKeyboard(
     @get:JsonProperty("text")
     val text: String,
     @get:JsonProperty("url")
-    val url: String = String.EMPTY,
+    val url: String = "",
     @get:JsonProperty("callback_data")
-    val callbackData: String = String.EMPTY
+    val callbackData: String = ""
 ) : TelegramReplyKeyboard() {
 
     override fun equals(other: Any?): Boolean {

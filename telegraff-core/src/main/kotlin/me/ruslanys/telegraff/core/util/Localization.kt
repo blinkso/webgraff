@@ -11,7 +11,7 @@ fun String.localized(
             locale ?: DEFAULT_LOCALE,
             UTF8Control()
         ).getString(this)
-    }.getOrNull() ?: String.EMPTY
+    }.getOrNull() ?: ""
 }
 
 /**

@@ -2,7 +2,6 @@ package me.ruslanys.telegraff.core.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import me.ruslanys.telegraff.core.util.EMPTY
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TelegramContact(
@@ -20,14 +19,14 @@ data class TelegramContact(
 ) {
     constructor() : this(
         userId = 0L,
-        firstName = String.EMPTY,
+        firstName = "",
         lastName = null,
         phoneNumber = null
     )
 
     constructor(phoneNumber: String) : this(
         userId = 0L,
-        firstName = String.EMPTY,
+        firstName = "",
         lastName = null,
         phoneNumber = phoneNumber
     )
@@ -36,7 +35,7 @@ data class TelegramContact(
         if (lastName?.isNotEmpty() == true) {
             " $lastName"
         } else {
-            String.EMPTY
+            ""
         }
     )
 }

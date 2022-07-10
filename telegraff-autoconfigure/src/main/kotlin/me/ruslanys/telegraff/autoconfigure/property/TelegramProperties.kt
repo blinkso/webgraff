@@ -1,6 +1,5 @@
 package me.ruslanys.telegraff.autoconfigure.property
 
-import me.ruslanys.telegraff.core.util.EMPTY
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
 import java.util.*
@@ -12,7 +11,7 @@ class TelegramProperties {
     /**
      * Telegram Bot API Access Key.
      */
-    var accessKey: String = String.EMPTY
+    var accessKey: String = ""
 
     /**
      * Telegram updates mode.

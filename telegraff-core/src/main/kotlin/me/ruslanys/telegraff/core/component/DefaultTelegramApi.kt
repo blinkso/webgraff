@@ -2,39 +2,36 @@ package me.ruslanys.telegraff.core.component
 
 import me.ruslanys.telegraff.core.dto.*
 import me.ruslanys.telegraff.core.dto.request.*
-import me.ruslanys.telegraff.core.util.EMPTY
 import org.slf4j.LoggerFactory
-import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.core.io.ByteArrayResource
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
 import org.springframework.util.LinkedMultiValueMap
+import org.springframework.web.reactive.function.BodyInserters
+import org.springframework.web.reactive.function.client.WebClient
 
-class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTemplateBuilder) : TelegramApi {
+class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
 
-    private val restTemplate = restTemplateBuilder
-        .rootUri("https://api.telegram.org/bot$telegramAccessKey")
+    private val restTemplate = WebClient.builder()
+        .baseUrl("https://api.telegram.org/bot$telegramAccessKey")
         .build()
-    private val fileRestTemplate = restTemplateBuilder
-        .rootUri("https://api.telegram.org/file/bot$telegramAccessKey")
+
+    //        restTemplateBuilder
+//        .rootUri("https://api.telegram.org/bot$telegramAccessKey")
+//        .build()
+    private val fileRestTemplate = WebClient.builder()
+        .baseUrl("https://api.telegram.org/file/bot$telegramAccessKey")
         .build()
+//        restTemplateBuilder
+//        .rootUri("https://api.telegram.org/file/bot$telegramAccessKey")
+//        .build()
 
     override fun getMe(): TelegramUser {
-        val response = restTemplate.exchange(
-            "/getMe",
-            HttpMethod.GET,
-            null,
-            object : ParameterizedTypeReference<TelegramResponse<TelegramUser>>() {}
-        )
-
-        response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
-            log.error("getMe: $message")
-        }
-
-        return response.body!!.result!!
+        return restTemplate.get()
+            .uri("/getMe")
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramUser>>() {})
+            .block()!!
+            .result!!
     }
 
     override fun getUpdates(offset: Long?, timeout: Int?): List<TelegramUpdate> {
@@ -42,84 +39,65 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
         offset?.let { params["offset"] = it }
         timeout?.let { params["timeout"] = it }
 
-        val response = restTemplate.exchange(
-            "/getUpdates",
-            HttpMethod.POST,
-            HttpEntity(params),
-            object : ParameterizedTypeReference<TelegramResponse<List<TelegramUpdate>>>() {}
-        )
-
-        response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
-            log.error("getUpdates: $message")
-        }
-
-        return response.body!!.result!!
+        return restTemplate
+            .post()
+            .uri("/getUpdates")
+            .body(BodyInserters.fromValue(params))
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<List<TelegramUpdate>>>() {})
+            .block()!!
+            .result!!
     }
 
     override fun getFile(fileId: String): TelegramFile {
         val params = hashMapOf("file_id" to fileId)
 
-        val response = restTemplate.exchange(
-            "/getFile",
-            HttpMethod.POST,
-            HttpEntity(params),
-            object : ParameterizedTypeReference<TelegramResponse<TelegramFile>>() {}
-        )
-
-        response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
-            log.error("getFile: $message")
-        }
-
-        return response.body!!.result!!
+        return restTemplate
+            .post()
+            .uri("/getFile")
+            .body(BodyInserters.fromValue(params))
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramFile>>() {})
+            .block()!!
+            .result!!
     }
 
     override fun getFileByPath(filePath: String): ByteArray {
         val params = mapOf<String, String>()
 
-        val response = fileRestTemplate.exchange(
-            "/$filePath",
-            HttpMethod.GET,
-            HttpEntity(params),
-            object : ParameterizedTypeReference<ByteArray>() {}
-        )
-
-        return response.body!!
+        return fileRestTemplate.get()
+            .uri("/$filePath", params)
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<ByteArray>() {})
+            .block()!!
     }
 
     override fun setWebhook(url: String): Boolean {
         val params = hashMapOf("url" to url)
 
-        val response = restTemplate.exchange(
-            "/setWebhook",
-            HttpMethod.POST,
-            HttpEntity(params),
-            object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {}
-        )
-
-        response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
-            log.error("setWebhook: $message")
-        }
-
-        return response.body!!.result!!
+        return restTemplate
+            .post()
+            .uri("/setWebhook")
+            .body(BodyInserters.fromValue(params))
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
+            .block()!!
+            .result!!
     }
 
     override fun removeWebhook(): Boolean {
-        return setWebhook(String.EMPTY)
+        return setWebhook("")
     }
 
     override fun sendMessage(request: TelegramMessageSendRequest): TelegramMessage {
-        val response = restTemplate.exchange(
-            "/sendMessage",
-            HttpMethod.POST,
-            HttpEntity(request),
-            object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {}
-        )
-
-        response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
-            log.error("sendMessage: $message")
-        }
-
-        return response.body!!.result!!
+        return restTemplate
+            .post()
+            .uri("/sendMessage")
+            .body(BodyInserters.fromValue(request))
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
+            .block()!!
+            .result!!
     }
 
     override fun sendDocument(request: TelegramDocumentSendRequest): TelegramMessage {
@@ -131,18 +109,17 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
             })
         }
 
-        // --
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.MULTIPART_FORM_DATA
-
-        val entity = restTemplate.exchange(
-            "/sendDocument",
-            HttpMethod.POST,
-            HttpEntity(formData, headers),
-            object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {}
-        )
-
-        return entity.body!!.result!!
+        return restTemplate
+            .post()
+            .uri("/sendDocument")
+            .body(BodyInserters.fromMultipartData(formData))
+//            .headers { headers ->
+//                headers.contentType = MediaType.MULTIPART_FORM_DATA
+//            }
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
+            .block()!!
+            .result!!
     }
 
     override fun sendPhoto(request: TelegramPhotoSendRequest): TelegramMessage {
@@ -154,18 +131,17 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
             })
         }
 
-        // --
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.MULTIPART_FORM_DATA
-
-        val entity = restTemplate.exchange(
-            "/sendPhoto",
-            HttpMethod.POST,
-            HttpEntity(formData, headers),
-            object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {}
-        )
-
-        return entity.body!!.result!!
+        return restTemplate
+            .post()
+            .uri("/sendPhoto")
+            .body(BodyInserters.fromMultipartData(formData))
+//            .headers { headers ->
+//                headers.contentType = MediaType.MULTIPART_FORM_DATA
+//            }
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
+            .block()!!
+            .result!!
     }
 
     override fun sendVoice(request: TelegramVoiceSendRequest): TelegramMessage {
@@ -177,52 +153,41 @@ class DefaultTelegramApi(telegramAccessKey: String, restTemplateBuilder: RestTem
             })
         }
 
-        // --
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.MULTIPART_FORM_DATA
-
-        val entity = restTemplate.exchange(
-            "/sendVoice",
-            HttpMethod.POST,
-            HttpEntity(formData, headers),
-            object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {}
-        )
-
-        return entity.body!!.result!!
+        return restTemplate
+            .post()
+            .uri("/sendVoice")
+            .body(BodyInserters.fromMultipartData(formData))
+//            .headers { headers ->
+//                headers.contentType = MediaType.MULTIPART_FORM_DATA
+//            }
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
+            .block()!!
+            .result!!
     }
 
     override fun sendChatAction(request: TelegramChatActionRequest): Boolean {
-        val response = restTemplate.exchange(
-            "/sendChatAction",
-            HttpMethod.POST,
-            HttpEntity(request),
-            object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {}
-        )
-
-        response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
-            log.error("sendChatAction: $message")
-        }
-
-        return response.body!!.result!!
+        return restTemplate
+            .post()
+            .uri("/sendChatAction")
+            .body(BodyInserters.fromValue(request))
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
+            .block()!!
+            .result!!
     }
 
     override fun sendAnswerCallbackQuery(callbackQueryId: Long): Boolean {
-        val response = restTemplate.exchange(
-            "/answerCallbackQuery",
-            HttpMethod.POST,
-            HttpEntity(
-                LinkedMultiValueMap<String, Any>().apply {
-                    add("callback_query_id", callbackQueryId)
-                }
-            ),
-            object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {}
-        )
+        val params = hashMapOf("callback_query_id" to callbackQueryId)
 
-        response.body?.description.takeIf { it?.isNotEmpty() == true }?.let { message ->
-            log.error("sendAnswerCallbackQuery: $message")
-        }
-
-        return response.body!!.result!!
+        return restTemplate
+            .post()
+            .uri("/answerCallbackQuery")
+            .body(BodyInserters.fromValue(params))
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
+            .block()!!
+            .result!!
     }
 
     private fun createFormData(request: TelegramMediaSendRequest): LinkedMultiValueMap<String, Any> =

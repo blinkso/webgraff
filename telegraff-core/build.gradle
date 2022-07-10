@@ -1,22 +1,4 @@
 dependencies {
     // Spring
-    compile('org.springframework.boot:spring-boot-starter-web')
-
-    // Tests
-    testCompile('org.springframework.boot:spring-boot-starter-test')
-    testCompile("org.jetbrains.kotlin:kotlin-test")
-}
-
-jacocoTestReport {
-    afterEvaluate {
-        getClassDirectories().setFrom(
-                files(classDirectories.files.collect {
-                    fileTree(dir: it, exclude: [
-                            'me/ruslanys/telegraff/core/exception/**',
-                            'me/ruslanys/telegraff/core/dto/**',
-                            'me/ruslanys/telegraff/core/event/**'
-                    ])
-                })
-        )
-    }
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
 }

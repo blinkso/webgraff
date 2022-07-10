@@ -26,8 +26,10 @@ class HandlersFilter(
     private val handlers: Map<String, Handler> = handlersFactory.getHandlers()
     private val states: MutableMap<Long, HandlerState> = ConcurrentHashMap()
 
-
-    override fun handleMessage(message: TelegramMessage, chain: TelegramFilterChain) {
+    override suspend fun handleMessage(
+        message: TelegramMessage,
+        chain: TelegramFilterChain
+    ) {
         val handler = findHandler(message)
         if (handler == null) {
             chain.doFilter(message)
@@ -39,11 +41,11 @@ class HandlersFilter(
         val response = try {
             if (state == null) {
                 val newState = HandlerState(
-                    message.chat.apply {
+                    chat = message.chat.apply {
                         // Populating language code in chat entity for further usage
                         languageCode = message.user?.languageCode
                     },
-                    handler
+                    handler = handler
                 )
                 states[message.chat.id] = newState
 
@@ -72,7 +74,7 @@ class HandlersFilter(
         states.remove(chat.id)
     }
 
-    private fun handleContinuation(state: HandlerState, message: TelegramMessage): TelegramSendRequest? {
+    private suspend fun handleContinuation(state: HandlerState, message: TelegramMessage): TelegramSendRequest? {
         val currentStep = state.currentStep!!
         val text = message.getMessageText()!!
 
@@ -98,7 +100,7 @@ class HandlersFilter(
         return handleQuestion(state)
     }
 
-    private fun handleQuestion(state: HandlerState): TelegramSendRequest? {
+    private suspend fun handleQuestion(state: HandlerState): TelegramSendRequest? {
         val currentStep = state.currentStep
 
         return if (currentStep != null) {
@@ -108,7 +110,7 @@ class HandlersFilter(
         }
     }
 
-    private fun handleFinalization(state: HandlerState): TelegramSendRequest? {
+    private suspend fun handleFinalization(state: HandlerState): TelegramSendRequest? {
         clearState(state.chat)
         return state.handler.process(state, state.answers)
     }
