@@ -13,7 +13,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
-import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -30,16 +29,9 @@ import org.springframework.context.support.GenericApplicationContext
 class TelegraffServletWebConfiguration(val telegramProperties: TelegramProperties) {
 
     @Bean
-    fun restTemplateBuilder(): RestTemplateBuilder {
-        // Need to provide a rest template builder because
-        // @RestTemplateAutoConfiguration does not work with webflux
-        return RestTemplateBuilder()
-    }
-
-    @Bean
     @ConditionalOnMissingBean(TelegramApi::class)
-    fun telegramApi(restTemplateBuilder: RestTemplateBuilder): TelegramApi {
-        return DefaultTelegramApi(telegramProperties.accessKey, restTemplateBuilder)
+    fun telegramApi(): TelegramApi {
+        return DefaultTelegramApi(telegramProperties.accessKey)
     }
 
     @Bean
