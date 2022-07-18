@@ -8,6 +8,7 @@ import org.springframework.core.io.ByteArrayResource
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import java.time.Duration
 
 class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
 
@@ -23,6 +24,7 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
             .uri("/getMe")
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramUser>>() {})
+            .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .toFuture()
             .get()
             .result!!
@@ -53,6 +55,7 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
             .body(BodyInserters.fromValue(params))
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramFile>>() {})
+            .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .toFuture()
             .get()
             .result!!
@@ -78,6 +81,7 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
             .body(BodyInserters.fromValue(params))
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
+            .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .toFuture()
             .get()
             .result!!
@@ -94,6 +98,7 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
             .body(BodyInserters.fromValue(request))
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
+            .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .toFuture()
             .get()
             .result!!
@@ -175,6 +180,7 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
             .body(BodyInserters.fromValue(request))
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
+            .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .toFuture()
             .get()
             .result!!
@@ -189,6 +195,7 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
             .body(BodyInserters.fromValue(params))
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
+            .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .toFuture()
             .get()
             .result!!
@@ -205,5 +212,6 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
 
     private companion object {
         private val log = LoggerFactory.getLogger(DefaultTelegramApi::class.java)
+        private const val REQUEST_TIMEOUT_SECONDS = 10L
     }
 }
