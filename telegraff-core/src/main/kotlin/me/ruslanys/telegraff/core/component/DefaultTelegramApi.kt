@@ -10,7 +10,10 @@ import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import java.time.Duration
 
-class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
+class DefaultTelegramApi(
+    telegramAccessKey: String,
+    private val paymentProviderToken: String?,
+) : TelegramApi {
 
     private val restTemplate = WebClient.builder()
         .baseUrl("https://api.telegram.org/bot$telegramAccessKey")
@@ -96,6 +99,19 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
             .post()
             .uri("/sendMessage")
             .body(BodyInserters.fromValue(request))
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
+            .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
+            .toFuture()
+            .get()
+            .result!!
+    }
+
+    override fun sendPayment(request: TelegramPaymentRequest): TelegramMessage {
+        return restTemplate
+            .post()
+            .uri("/sendInvoice")
+            .body(BodyInserters.fromValue(request.apply { providerToken = paymentProviderToken ?: "" }))
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
@@ -192,6 +208,28 @@ class DefaultTelegramApi(telegramAccessKey: String) : TelegramApi {
         return restTemplate
             .post()
             .uri("/answerCallbackQuery")
+            .body(BodyInserters.fromValue(params))
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
+            .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
+            .toFuture()
+            .get()
+            .result!!
+    }
+
+    override fun sendAnswerPreCheckoutQuery(preCheckoutQueryId: Long, errorMessage: String?): Boolean {
+        val params = hashMapOf<String, Any>()
+        params["pre_checkout_query_id"] = preCheckoutQueryId
+        if (errorMessage != null) {
+            params["ok"] = false
+            params["error_message"] = errorMessage
+        } else {
+            params["ok"] = true
+        }
+
+        return restTemplate
+            .post()
+            .uri("/answerPreCheckoutQuery")
             .body(BodyInserters.fromValue(params))
             .retrieve()
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})

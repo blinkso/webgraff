@@ -4,6 +4,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import me.ruslanys.telegraff.core.dto.TelegramChat
+import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.event.TelegramUpdateEvent
 import me.ruslanys.telegraff.core.util.TelegramFilterOrderUtil
 import kotlin.coroutines.CoroutineContext
@@ -36,6 +38,28 @@ class DefaultTelegramFiltersFactory(filters: List<TelegramFilter>) :
                 // Same as reply markup keyboard query
                 event.update.callbackQuery.message.text = event.update.callbackQuery.data
                 chain.doFilter(event.update.callbackQuery.message)
+            } else if (event.update.preCheckoutQuery != null) {
+                val message = TelegramMessage(
+                    id = event.update.id,
+                    user = event.update.preCheckoutQuery.user,
+                    date = System.currentTimeMillis(),
+                    preCheckoutQuery = event.update.preCheckoutQuery,
+                    chat = TelegramChat(
+                        id = event.update.preCheckoutQuery.user.id,
+                        type = "",
+                        title = null,
+                        username = event.update.preCheckoutQuery.user.username,
+                        firstName = event.update.preCheckoutQuery.user.firstName,
+                        languageCode = event.update.preCheckoutQuery.user.languageCode,
+                        lastName = event.update.preCheckoutQuery.user.lastName
+                    ),
+                    contact = null,
+                    photo = null,
+                    successfulPayment = null,
+                    text = event.update.preCheckoutQuery.invoicePayload,
+                    callbackQuery = null
+                )
+                chain.doFilter(message)
             }
         }
     }

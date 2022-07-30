@@ -1,11 +1,13 @@
 package me.ruslanys.telegraff.core.dto.request
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import me.ruslanys.telegraff.core.dto.request.keyboard.TelegramRemoveReplyKeyboard
+import me.ruslanys.telegraff.core.dto.request.keyboard.TelegramPaymentReplyKeyboard
 
 // https://core.telegram.org/bots/api#payments
 open class TelegramPaymentRequest(
     chatId: Long = 0,
+
+    paymentButtonText: String,
 
     @get:JsonProperty("title")
     val title: String,
@@ -13,11 +15,8 @@ open class TelegramPaymentRequest(
     @get:JsonProperty("description")
     val description: String,
 
-    @get:JsonProperty("description")
+    @get:JsonProperty("payload")
     val payload: String,
-
-    @get:JsonProperty("provider_token")
-    val providerToken: String,
 
     @get:JsonProperty("currency")
     val currency: String,
@@ -41,6 +40,12 @@ open class TelegramPaymentRequest(
     val sendEmailNumberToProvider: Boolean = needEmail,
 
     @get:JsonProperty("is_flexible")
-    val isFlexible: Boolean = false
-) : TelegramSendRequest(chatId, TelegramRemoveReplyKeyboard()) {
+    val isFlexible: Boolean = false,
+
+    @get:JsonProperty("provider_token")
+    var providerToken: String = "",
+
+    @get:JsonProperty("photo_url")
+    val photo: String? = null,
+) : TelegramSendRequest(chatId, TelegramPaymentReplyKeyboard(paymentButtonText)) {
 }
