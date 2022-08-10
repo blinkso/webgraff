@@ -48,4 +48,8 @@ open class TelegramPaymentRequest(
     @get:JsonProperty("photo_url")
     val photo: String? = null,
 ) : TelegramSendRequest(chatId, TelegramPaymentReplyKeyboard(paymentButtonText)) {
+
+    companion object {
+        const val TITLE_MAX_LENGTH = 32
+    }
 }
