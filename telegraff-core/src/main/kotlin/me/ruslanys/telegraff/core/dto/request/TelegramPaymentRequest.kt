@@ -45,6 +45,9 @@ open class TelegramPaymentRequest(
     @get:JsonProperty("provider_token")
     var providerToken: String = "",
 
+    @get:JsonProperty("provider_data")
+    var providerData: String = "",
+
     @get:JsonProperty("photo_url")
     val photo: String? = null,
 ) : TelegramSendRequest(chatId, TelegramPaymentReplyKeyboard(paymentButtonText)) {
