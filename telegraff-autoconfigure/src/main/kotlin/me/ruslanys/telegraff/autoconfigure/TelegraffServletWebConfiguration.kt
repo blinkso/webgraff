@@ -31,7 +31,7 @@ class TelegraffServletWebConfiguration(val telegramProperties: TelegramPropertie
     @Bean
     @ConditionalOnMissingBean(TelegramApi::class)
     fun telegramApi(): TelegramApi {
-        return DefaultTelegramApi(telegramProperties.accessKey)
+        return DefaultTelegramApi(telegramProperties.accessKey, telegramProperties.paymentProvider)
     }
 
     @Bean

@@ -121,10 +121,20 @@ class HandlersFilter(
         }
 
         when (response) {
-            is TelegramMessageSendRequest -> telegramApi.sendMessage(response)
-            is TelegramVoiceSendRequest -> telegramApi.sendVoice(response)
-            is TelegramPhotoSendRequest -> telegramApi.sendPhoto(response)
-            is TelegramDocumentSendRequest -> telegramApi.sendDocument(response)
+            is TelegramPaymentRequest ->
+                telegramApi.sendPayment(response)
+
+            is TelegramMessageSendRequest ->
+                telegramApi.sendMessage(response)
+
+            is TelegramVoiceSendRequest ->
+                telegramApi.sendVoice(response)
+
+            is TelegramPhotoSendRequest ->
+                telegramApi.sendPhoto(response)
+
+            is TelegramDocumentSendRequest ->
+                telegramApi.sendDocument(response)
         }
     }
 

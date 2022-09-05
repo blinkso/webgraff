@@ -18,6 +18,9 @@ data class TelegramUpdate(
     @JsonProperty("channel_post")
     val channelPost: TelegramMessage?,
 
+    @JsonProperty("pre_checkout_query")
+    val preCheckoutQuery: TelegramPreCheckoutQuery?,
+
     @JsonProperty("edited_channel_post")
     val editedChannelPost: TelegramMessage?
 )

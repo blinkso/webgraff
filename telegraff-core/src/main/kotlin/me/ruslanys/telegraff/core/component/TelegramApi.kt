@@ -30,6 +30,8 @@ interface TelegramApi {
 
     fun sendMessage(request: TelegramMessageSendRequest): TelegramMessage
 
+    fun sendPayment(request: TelegramPaymentRequest): TelegramMessage
+
     fun sendPhoto(request: TelegramPhotoSendRequest): TelegramMessage
 
     fun sendDocument(request: TelegramDocumentSendRequest): TelegramMessage
@@ -39,4 +41,6 @@ interface TelegramApi {
     fun sendChatAction(request: TelegramChatActionRequest): Boolean
 
     fun sendAnswerCallbackQuery(callbackQueryId: Long): Boolean
+
+    fun sendAnswerPreCheckoutQuery(preCheckoutQueryId: Long, errorMessage: String? = null): Boolean
 }

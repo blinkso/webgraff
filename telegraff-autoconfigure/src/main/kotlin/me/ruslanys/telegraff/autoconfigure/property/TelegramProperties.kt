@@ -14,6 +14,11 @@ class TelegramProperties {
     var accessKey: String = ""
 
     /**
+     * Telegram Bot Payment Provider token.
+     */
+    var paymentProvider: String? = null
+
+    /**
      * Telegram updates mode.
      */
     var mode = TelegramMode.POLLING

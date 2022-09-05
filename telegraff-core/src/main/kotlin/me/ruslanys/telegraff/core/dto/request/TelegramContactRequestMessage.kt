@@ -2,14 +2,17 @@ package me.ruslanys.telegraff.core.dto.request
 
 import me.ruslanys.telegraff.core.dto.request.keyboard.TelegramMarkupContactReplyKeyboard
 
-class TelegramContactRequestMessage(
+open class TelegramContactRequestMessage(
+    chatId: Long = 0,
+
     text: String,
+
     buttonText: String,
-    cancelButtonText: String? = null,
-    chatId: Long = 0
+
+    cancelButtonText: String? = null
 ) : TelegramMessageSendRequest(
-    chatId,
-    text,
-    TelegramParseMode.MARKDOWN,
-    TelegramMarkupContactReplyKeyboard(text = buttonText, cancelButtonText = cancelButtonText)
+    chatId = chatId,
+    text = text,
+    parseMode = TelegramParseMode.MARKDOWN,
+    replyMarkup = TelegramMarkupContactReplyKeyboard(text = buttonText, cancelButtonText = cancelButtonText)
 )

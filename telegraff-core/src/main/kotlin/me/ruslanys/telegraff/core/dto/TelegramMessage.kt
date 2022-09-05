@@ -21,6 +21,12 @@ data class TelegramMessage(
     @JsonProperty("photo")
     val photo: List<TelegramPhoto>?,
 
+    @JsonProperty("successful_payment")
+    val successfulPayment: TelegramSuccessfulPayment?,
+
+    @JsonProperty("pre_checkout_query")
+    val preCheckoutQuery: TelegramPreCheckoutQuery?,
+
     @JsonProperty("text")
     var text: String?,
 
