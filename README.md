@@ -1,45 +1,21 @@
 ![Telegraff](docs/logo.png "Logo")
 
-<!-- Описание -->
+<!-- Description -->
 
-## Подключение
-
-```
-repositories {
-    maven {
-        url "https://dl.bintray.com/ruslanys/maven"
-    }
-}
-```
-
-Gradle: 
-
-```
-compile("me.ruslanys.telegraff:telegraff-starter:1.0.0")
-```
-
-Maven:
-
-```
-<dependency>
-    <groupId>me.ruslanys.telegraff</groupId>
-    <artifactId>telegraff-starter</artifactId>
-    <version>1.0.0</version>
-</dependency>
-```
-
-## Настройка
+## Settings
 
 ```
 telegram.access-key=                  # api key
 telegram.mode=                        # polling (default), webhook
 telegram.webhook-base-url=            # required for webhook mode
 telegram.webhook-endpoint-url=        # optional
+telegram.payment-provider=            # payment provider key
 ```
 
-## Использование
+## Usage
 
-Положите файл с расширением `.kts` в папку c ресурсами `handlers`:
+
+Add `.kts` in resource `handlers` folder:
 `resources/handlers/ExampleHandler.kts`.
 
 
@@ -48,29 +24,29 @@ enum class PaymentMethod {
     CARD, CASH
 }
 
-handler("/taxi", "такси") {
+handler("/taxi") {
     step<String>("locationFrom") {
         question {
-            MarkdownMessage("Откуда поедем?")
+            MarkdownMessage("Start point:")
         }
     }
 
     step<String>("locationTo") {
         question {
-            MarkdownMessage("Куда поедем?")
+            MarkdownMessage("Where to:")
         }
     }
 
     step<PaymentMethod>("paymentMethod") {
         question {
-            MarkdownMessage("Оплата картой или наличкой?", "Картой", "Наличкой")
+            MarkdownMessage("Card or cash?", "Card", "Cash")
         }
 
         validation {
             when (it.toLowerCase()) {
-                "картой" -> PaymentMethod.CARD
-                "наличкой" -> PaymentMethod.CASH
-                else -> throw ValidationException("Пожалуйста, выбери один из вариантов")
+                "Card" -> PaymentMethod.CARD
+                "Cash" -> PaymentMethod.CASH
+                else -> throw ValidationException("You should choose one of the variants above")
             }
         }
     }
@@ -82,11 +58,11 @@ handler("/taxi", "такси") {
 
         // Business logic
 
-        MarkdownMessage("Заказ принят. Поедем из $from в $to. Оплата $paymentMethod.")
+        MarkdownMessage("Order confirmed. $from в $to. Payment $paymentMethod.")
     }
 }
 ```
 
-## Устройство
+## Error handling
 
-![Обработка сообщений](docs/processing-diagram.png "Обработка сообщений")
+![Error handling](docs/processing-diagram.png "Message processing")
