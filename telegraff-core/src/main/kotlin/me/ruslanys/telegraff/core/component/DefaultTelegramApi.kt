@@ -239,6 +239,41 @@ class DefaultTelegramApi(
             .result!!
     }
 
+    override fun setMyCommands(locale: String?, commands: List<TelegramBotCommand>): Boolean {
+        val request = TelegramBotCommandsSendRequest(
+            commands = commands,
+            languageCode = locale
+        )
+
+        return restTemplate
+            .post()
+            .uri("/setMyCommands")
+            .body(BodyInserters.fromValue(request))
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
+            .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
+            .toFuture()
+            .get()
+            .result!!
+    }
+
+    override fun deleteMyCommands(locale: String?): Boolean {
+        val request = TelegramBotCommandsSendRequest(
+            languageCode = locale
+        )
+
+        return restTemplate
+            .post()
+            .uri("/deleteMyCommands")
+            .body(BodyInserters.fromValue(request))
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
+            .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
+            .toFuture()
+            .get()
+            .result!!
+    }
+
     private fun createFormData(request: TelegramMediaSendRequest): LinkedMultiValueMap<String, Any> =
         LinkedMultiValueMap<String, Any>().apply {
             add("chat_id", request.chatId)

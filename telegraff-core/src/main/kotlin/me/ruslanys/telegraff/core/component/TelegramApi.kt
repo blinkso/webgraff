@@ -43,4 +43,8 @@ interface TelegramApi {
     fun sendAnswerCallbackQuery(callbackQueryId: Long): Boolean
 
     fun sendAnswerPreCheckoutQuery(preCheckoutQueryId: Long, errorMessage: String? = null): Boolean
+
+    fun setMyCommands(locale: String?, commands: List<TelegramBotCommand>): Boolean
+
+    fun deleteMyCommands(locale: String?): Boolean
 }

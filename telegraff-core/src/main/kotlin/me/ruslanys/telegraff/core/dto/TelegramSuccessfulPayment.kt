@@ -17,5 +17,4 @@ data class TelegramSuccessfulPayment(
 
     @JsonProperty("provider_payment_charge_id")
     val providerPaymentChargeId: String,
-) {
-}
+)
