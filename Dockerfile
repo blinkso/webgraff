@@ -1,6 +1,6 @@
 # Build
 # Image
-FROM jdk-11.0.11_9-alpine as build
+FROM 8-al2-jdk as build
 WORKDIR /root/application
 COPY . .
 
