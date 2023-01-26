@@ -1,6 +1,6 @@
 # Build
 # Image
-FROM 8u362-alpine3.17-jre as build
+FROM amazoncorretto:11 as build
 WORKDIR /root/application
 COPY . .
 
