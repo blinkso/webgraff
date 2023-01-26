@@ -3,10 +3,10 @@ import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 plugins {
     id("java")
     id("idea")
-    id("org.jetbrains.kotlin.jvm") version "1.6.20"
-    id("org.jetbrains.kotlin.kapt") version "1.6.20"
-    id("org.jetbrains.kotlin.plugin.spring") version "1.6.20"
-    id("org.springframework.boot") version "2.3.5.RELEASE"
+    id("org.jetbrains.kotlin.jvm") version "1.8.0"
+    id("org.jetbrains.kotlin.kapt") version "1.8.0"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.8.0"
+    id("org.springframework.boot") version "3.0.2"
 }
 
 group = "ua.blink.telegraff"
@@ -45,7 +45,7 @@ subprojects {
     }
 
     configure<DependencyManagementExtension> {
-        val springBootVersion = "2.7.1"
+        val springBootVersion = "2.7.8"
         imports { mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}") }
     }
 
