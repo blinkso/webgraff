@@ -6,7 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "1.8.0"
     id("org.jetbrains.kotlin.kapt") version "1.8.0"
     id("org.jetbrains.kotlin.plugin.spring") version "1.8.0"
-    id("org.springframework.boot") version "3.0.0"
+    id("org.springframework.boot") version "2.7.8"
 }
 
 group = "ua.blink.telegraff"
