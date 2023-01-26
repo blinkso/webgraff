@@ -1,6 +1,6 @@
 # Build
 # Image
-FROM 8-al2-jdk as build
+FROM 8u362-alpine3.17-jre as build
 WORKDIR /root/application
 COPY . .
 
