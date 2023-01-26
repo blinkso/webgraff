@@ -1,6 +1,6 @@
 # Build
 # Image
-FROM openjdk:8-jdk-alpine as build
+FROM 21-jdk as build
 WORKDIR /root/application
 COPY . .
 
