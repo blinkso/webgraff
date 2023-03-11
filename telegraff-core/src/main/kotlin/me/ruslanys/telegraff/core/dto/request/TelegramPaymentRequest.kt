@@ -3,7 +3,7 @@ package me.ruslanys.telegraff.core.dto.request
 import com.fasterxml.jackson.annotation.JsonProperty
 import me.ruslanys.telegraff.core.dto.request.keyboard.TelegramPaymentReplyKeyboard
 
-// https://core.telegram.org/bots/api#payments
+// https://core.telegram.org/bots/api#sendinvoice
 open class TelegramPaymentRequest(
     chatId: Long = 0,
 
@@ -50,6 +50,9 @@ open class TelegramPaymentRequest(
 
     @get:JsonProperty("photo_url")
     val photo: String? = null,
+
+    @JsonProperty("start_parameter")
+    val startParameter: String = ""
 ) : TelegramSendRequest(chatId, TelegramPaymentReplyKeyboard(paymentButtonText)) {
 
     companion object {
