@@ -51,7 +51,7 @@ open class TelegramPaymentRequest(
     @get:JsonProperty("photo_url")
     val photo: String? = null,
 
-    @JsonProperty("start_parameter")
+    @get:JsonProperty("start_parameter")
     val startParameter: String = ""
 ) : TelegramSendRequest(chatId, TelegramPaymentReplyKeyboard(paymentButtonText)) {
 
