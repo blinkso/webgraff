@@ -9,6 +9,7 @@ import me.ruslanys.telegraff.core.dto.TelegramChat
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.dto.request.*
 import me.ruslanys.telegraff.core.exception.CancelException
+import me.ruslanys.telegraff.core.exception.FinishException
 import me.ruslanys.telegraff.core.exception.ValidationException
 import me.ruslanys.telegraff.core.filter.FilterOrders.Companion.HANDLERS_FILTER_ORDER
 import me.ruslanys.telegraff.core.util.DEFAULT_LOCALE
@@ -92,10 +93,14 @@ class HandlersFilter(
         }
         state.answers[currentStep.key] = answer
 
-        // next step
-        val nextStepKey = currentStep.next(state)
-        val nextStep = nextStepKey?.let { state.handler.getStepByKey(nextStepKey) }
-        state.currentStep = nextStep
+        try {
+            // next step
+            val nextStepKey = currentStep.next(state)
+            val nextStep = nextStepKey?.let { state.handler.getStepByKey(nextStepKey) }
+            state.currentStep = nextStep
+        } catch (e: FinishException) {
+            state.currentStep = null
+        }
 
         return handleQuestion(state)
     }
