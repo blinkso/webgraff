@@ -1,6 +1,6 @@
 # Build
 # Image
-FROM amazoncorretto:11 as build
+FROM amazoncorretto:17 as build
 WORKDIR /root/application
 COPY . .
 
