@@ -3,10 +3,10 @@ import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 plugins {
     id("java")
     id("idea")
-    id("org.jetbrains.kotlin.jvm") version "1.8.0"
-    id("org.jetbrains.kotlin.kapt") version "1.8.0"
-    id("org.jetbrains.kotlin.plugin.spring") version "1.8.0"
-    id("org.springframework.boot") version "2.7.8"
+    id("org.jetbrains.kotlin.jvm") version "1.8.10"
+    id("org.jetbrains.kotlin.kapt") version "1.8.10"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.8.10"
+    id("org.springframework.boot") version "3.0.5"
 }
 
 group = "ua.blink.telegraff"
@@ -29,8 +29,6 @@ subprojects {
         plugin("io.spring.dependency-management")
     }
 
-    java.sourceCompatibility = JavaVersion.VERSION_1_8
-
     dependencies {
         // Kotlin
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -45,7 +43,7 @@ subprojects {
     }
 
     configure<DependencyManagementExtension> {
-        val springBootVersion = "2.7.8"
+        val springBootVersion = "3.0.5"
         imports { mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}") }
     }
 
@@ -74,13 +72,13 @@ subprojects {
         compileKotlin {
             kotlinOptions {
                 freeCompilerArgs = listOf("-Xjsr305=strict")
-                jvmTarget = "1.8"
+                jvmTarget = "17"
             }
         }
         compileTestKotlin {
             kotlinOptions {
                 freeCompilerArgs = listOf("-Xjsr305=strict")
-                jvmTarget = "1.8"
+                jvmTarget = "17"
             }
         }
 

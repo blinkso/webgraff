@@ -1,5 +1,6 @@
 package me.ruslanys.telegraff.core.client
 
+import jakarta.annotation.PreDestroy
 import me.ruslanys.telegraff.core.component.TelegramApi
 import me.ruslanys.telegraff.core.dto.TelegramUpdate
 import me.ruslanys.telegraff.core.event.TelegramUpdateEvent
@@ -8,7 +9,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import java.util.concurrent.TimeUnit
-import javax.annotation.PreDestroy
 
 class TelegramPollingClient(
     private val telegramApi: TelegramApi,

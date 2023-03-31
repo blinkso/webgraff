@@ -1,5 +1,7 @@
 package me.ruslanys.telegraff.core.client
 
+import jakarta.annotation.PostConstruct
+import jakarta.annotation.PreDestroy
 import me.ruslanys.telegraff.core.component.TelegramApi
 import me.ruslanys.telegraff.core.dto.TelegramUpdate
 import me.ruslanys.telegraff.core.event.TelegramUpdateEvent
@@ -9,8 +11,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import javax.annotation.PostConstruct
-import javax.annotation.PreDestroy
 
 @RestController
 class TelegramWebhookClient(
