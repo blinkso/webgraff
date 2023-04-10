@@ -57,5 +57,6 @@ open class TelegramPaymentRequest(
 
     companion object {
         const val TITLE_MAX_LENGTH = 32
+        const val DESCRIPTION_MAX_LENGTH = 255
     }
 }
