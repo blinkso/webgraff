@@ -14,5 +14,5 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-    api("net.java.dev.jna:jna")
+    api("net.java.dev.jna:jna:5.11.0")
 }
