@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "ua.blink.telegraff"
-version = "1.0.3"
+version = "1.0.4"
 
 allprojects {
     repositories {
@@ -137,8 +137,8 @@ subprojects {
                 val GITHUB_TELEGRAFF_URL: String by project
                 url = uri(GITHUB_TELEGRAFF_URL)
                 credentials {
-                    username = System.getenv("GITHUB_USERNAME")
-                    password = System.getenv("GITHUB_TOKEN")
+                    username = "thatrun"
+                    password = "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"
                 }
             }
         }
