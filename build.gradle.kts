@@ -137,8 +137,8 @@ subprojects {
                 val GITHUB_TELEGRAFF_URL: String by project
                 url = uri(GITHUB_TELEGRAFF_URL)
                 credentials {
-                    username = "thatrun"
-                    password = "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"
+                    username = System.getenv("GITHUB_USERNAME")
+                    password = System.getenv("GITHUB_TOKEN")
                 }
             }
         }
