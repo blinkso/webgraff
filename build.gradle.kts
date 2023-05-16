@@ -3,14 +3,15 @@ import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 plugins {
     id("java")
     id("idea")
-    id("org.jetbrains.kotlin.jvm") version "1.8.0"
-    id("org.jetbrains.kotlin.kapt") version "1.8.0"
-    id("org.jetbrains.kotlin.plugin.spring") version "1.8.0"
-    id("org.springframework.boot") version "2.7.8"
+    id("maven-publish")
+    id("org.jetbrains.kotlin.jvm") version "1.8.10"
+    id("org.jetbrains.kotlin.kapt") version "1.8.10"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.8.10"
+    id("org.springframework.boot") version "3.0.5"
 }
 
 group = "ua.blink.telegraff"
-version = "1.0.0"
+version = "1.0.5"
 
 allprojects {
     repositories {
@@ -29,8 +30,6 @@ subprojects {
         plugin("io.spring.dependency-management")
     }
 
-    java.sourceCompatibility = JavaVersion.VERSION_1_8
-
     dependencies {
         // Kotlin
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -45,7 +44,7 @@ subprojects {
     }
 
     configure<DependencyManagementExtension> {
-        val springBootVersion = "2.7.8"
+        val springBootVersion = "3.0.5"
         imports { mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}") }
     }
 
@@ -74,13 +73,13 @@ subprojects {
         compileKotlin {
             kotlinOptions {
                 freeCompilerArgs = listOf("-Xjsr305=strict")
-                jvmTarget = "1.8"
+                jvmTarget = "17"
             }
         }
         compileTestKotlin {
             kotlinOptions {
                 freeCompilerArgs = listOf("-Xjsr305=strict")
-                jvmTarget = "1.8"
+                jvmTarget = "17"
             }
         }
 
@@ -98,8 +97,51 @@ subprojects {
             enabled = false
         }
     }
-}
 
-tasks.bootJar {
-    enabled = false
+    // Configure the publishing plugin
+    configure<PublishingExtension> {
+        publications {
+            create<MavenPublication>("mavenJava") {
+                groupId = rootProject.group.toString()
+                artifactId = project.name
+                // Add the following line inside the subprojects block
+                version = rootProject.version.toString()
+
+                from(components["java"])
+
+                pom {
+                    val GITHUB_TELEGRAFF_URL: String by project
+                    name.set("telegraff")
+                    description.set("Kotlin DSL for Telegram bot development")
+                    url.set(GITHUB_TELEGRAFF_URL)
+                    licenses {
+                        license {
+                            name.set("The Apache License, Version 2.0")
+                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        }
+                    }
+                    developers {
+                        developer {
+                            id.set("gazanfarov")
+                            name.set("Ruslan Gazanfarov")
+                            email.set("ruslan.gazanfarov@blink.so")
+                        }
+                    }
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                val GITHUB_TELEGRAFF_URL: String by project
+                url = uri(GITHUB_TELEGRAFF_URL)
+                credentials {
+                    username = System.getenv("GITHUB_USERNAME")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+    }
+
 }
