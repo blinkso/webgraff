@@ -362,11 +362,12 @@ class DefaultTelegramApi(
         }
 
     private fun ClientResponse.handleError(logMarker: String): Mono<Throwable> {
-        val errorBody = bodyToMono(String::class.java).block()
-        val responseBody = "$logMarker ${statusCode()} $errorBody"
-        val responseException = RuntimeException(responseBody)
-        log.error(responseBody, responseException)
-        return Mono.error(RuntimeException(responseBody))
+        return bodyToMono(String::class.java).flatMap { errorBody ->
+            val responseBody = "$logMarker ${statusCode()} $errorBody"
+            val responseException = RuntimeException(responseBody)
+            log.error(responseBody, responseException)
+            Mono.error(responseException)
+        }
     }
 
     private companion object {
