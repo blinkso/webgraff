@@ -11,4 +11,9 @@ open class TelegramVoiceSendRequest(
     caption: String? = null,
 
     parseMode: TelegramParseMode? = null
-) : TelegramMediaSendRequest(chatId, caption, parseMode)
+) : TelegramMediaSendRequest(chatId, caption, parseMode) {
+
+    override fun toString(): String {
+        return "TelegramVoiceSendRequest(voice=${voice.contentToString()})"
+    }
+}

@@ -5,7 +5,9 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
+import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Mono
 import reactor.util.retry.Retry
 import ua.blink.telegraff.dto.*
 import ua.blink.telegraff.dto.request.*
@@ -27,6 +29,10 @@ class DefaultTelegramApi(
         return restTemplate.get()
             .uri("/getMe")
             .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("getMe()") }
+            )
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramUser>>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
@@ -45,6 +51,10 @@ class DefaultTelegramApi(
             .uri("/getUpdates")
             .body(BodyInserters.fromValue(params))
             .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("getUpdates($offset $timeout)") }
+            )
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<List<TelegramUpdate>>>() {})
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
@@ -60,6 +70,10 @@ class DefaultTelegramApi(
             .uri("/getFile")
             .body(BodyInserters.fromValue(params))
             .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("getFile($fileId)") }
+            )
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramFile>>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
@@ -74,6 +88,10 @@ class DefaultTelegramApi(
         return fileRestTemplate.get()
             .uri("/$filePath", params)
             .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("getFileByPath($filePath)") }
+            )
             .bodyToMono(object : ParameterizedTypeReference<ByteArray>() {})
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
@@ -88,6 +106,10 @@ class DefaultTelegramApi(
             .uri("/setWebhook")
             .body(BodyInserters.fromValue(params))
             .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("setWebhook($url)") }
+            )
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
@@ -106,6 +128,10 @@ class DefaultTelegramApi(
             .uri("/sendMessage")
             .body(BodyInserters.fromValue(request))
             .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("sendMessage($request)") }
+            )
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
@@ -120,6 +146,10 @@ class DefaultTelegramApi(
             .uri("/sendInvoice")
             .body(BodyInserters.fromValue(request.apply { providerToken = paymentProviderToken ?: "" }))
             .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("sendPayment($request)") }
+            )
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
@@ -145,6 +175,10 @@ class DefaultTelegramApi(
 //                headers.contentType = MediaType.MULTIPART_FORM_DATA
 //            }
             .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("sendDocument($request)") }
+            )
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
@@ -169,6 +203,10 @@ class DefaultTelegramApi(
 //                headers.contentType = MediaType.MULTIPART_FORM_DATA
 //            }
             .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("sendPhoto($request)") }
+            )
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
@@ -193,6 +231,10 @@ class DefaultTelegramApi(
 //                headers.contentType = MediaType.MULTIPART_FORM_DATA
 //            }
             .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("sendVoice($request)") }
+            )
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<TelegramMessage>>() {})
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
@@ -206,6 +248,10 @@ class DefaultTelegramApi(
             .uri("/sendChatAction")
             .body(BodyInserters.fromValue(request))
             .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("sendChatAction($request)") }
+            )
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
@@ -222,6 +268,10 @@ class DefaultTelegramApi(
             .uri("/answerCallbackQuery")
             .body(BodyInserters.fromValue(params))
             .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("sendAnswerCallbackQuery($callbackQueryId)") }
+            )
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
@@ -245,6 +295,10 @@ class DefaultTelegramApi(
             .uri("/answerPreCheckoutQuery")
             .body(BodyInserters.fromValue(params))
             .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("sendAnswerPreCheckoutQuery($preCheckoutQueryId $errorMessage)") }
+            )
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
@@ -264,6 +318,10 @@ class DefaultTelegramApi(
             .uri("/setMyCommands")
             .body(BodyInserters.fromValue(request))
             .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("setMyCommands($locale $commands)") }
+            )
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
@@ -282,6 +340,10 @@ class DefaultTelegramApi(
             .uri("/deleteMyCommands")
             .body(BodyInserters.fromValue(request))
             .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("deleteMyCommands($locale)") }
+            )
             .bodyToMono(object : ParameterizedTypeReference<TelegramResponse<Boolean>>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
@@ -299,10 +361,18 @@ class DefaultTelegramApi(
             request.parseMode?.let { add("parse_mode", request.parseMode.name) }
         }
 
+    private fun ClientResponse.handleError(logMarker: String): Mono<Throwable> {
+        val errorBody = bodyToMono(String::class.java).block()
+        val responseBody = "$logMarker ${statusCode()} $errorBody"
+        val responseException = RuntimeException(responseBody)
+        log.error(responseBody, responseException)
+        return Mono.error(RuntimeException(responseBody))
+    }
+
     private companion object {
         private val log = LoggerFactory.getLogger(DefaultTelegramApi::class.java)
         private const val REQUEST_TIMEOUT_SECONDS = 10L
-        private const val MIN_BACKOFF_SECONDS = 5L
-        private const val MAX_RETRY_ATTEMPTS = 5L
+        private const val MIN_BACKOFF_SECONDS = 2L
+        private const val MAX_RETRY_ATTEMPTS = 3L
     }
 }

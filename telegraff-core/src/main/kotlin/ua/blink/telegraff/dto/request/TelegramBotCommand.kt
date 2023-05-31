@@ -25,4 +25,8 @@ class TelegramBotCommand(
         result = 31 * result + description.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "TelegramBotCommand(command='$command', description='$description')"
+    }
 }

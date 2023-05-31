@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 class TelegramPollingClient(
     private val telegramApi: TelegramApi,
     private val publisher: ApplicationEventPublisher
-) : ua.blink.telegraff.client.TelegramClient, ApplicationListener<ApplicationReadyEvent> {
+) : TelegramClient, ApplicationListener<ApplicationReadyEvent> {
 
     private val client = Client()
 
@@ -22,7 +22,7 @@ class TelegramPollingClient(
     }
 
     override fun start() {
-        ua.blink.telegraff.client.TelegramPollingClient.Companion.log.info("Telegram client: POLLING")
+        log.info("Telegram client: POLLING")
         client.start()
     }
 
@@ -33,7 +33,7 @@ class TelegramPollingClient(
     }
 
     override fun onUpdate(update: TelegramUpdate) {
-        ua.blink.telegraff.client.TelegramPollingClient.Companion.log.info("Got a new event: {}", update)
+        log.info("Got a new event: {}", update)
         publisher.publishEvent(TelegramUpdateEvent(this, update))
     }
 
@@ -46,7 +46,7 @@ class TelegramPollingClient(
                 try {
                     val updates = telegramApi.getUpdates(
                         offset,
-                        ua.blink.telegraff.client.TelegramPollingClient.Companion.POLLING_TIMEOUT
+                        POLLING_TIMEOUT
                     )
                     if (updates.isEmpty()) {
                         continue
@@ -60,7 +60,7 @@ class TelegramPollingClient(
                     // --
                     offset = updates.last().id + 1
                 } catch (e: Exception) {
-                    ua.blink.telegraff.client.TelegramPollingClient.Companion.log.error(
+                    log.error(
                         "Exception during polling messages",
                         e
                     )
@@ -72,7 +72,7 @@ class TelegramPollingClient(
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(ua.blink.telegraff.client.TelegramPollingClient::class.java)
+        private val log = LoggerFactory.getLogger(TelegramPollingClient::class.java)
         private const val POLLING_TIMEOUT = 10
     }
 

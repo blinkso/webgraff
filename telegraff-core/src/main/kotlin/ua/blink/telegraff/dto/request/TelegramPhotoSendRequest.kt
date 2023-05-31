@@ -11,4 +11,9 @@ open class TelegramPhotoSendRequest(
     caption: String? = null,
 
     parseMode: TelegramParseMode? = null
-) : TelegramMediaSendRequest(chatId, caption, parseMode)
+) : TelegramMediaSendRequest(chatId, caption, parseMode) {
+
+    override fun toString(): String {
+        return "TelegramPhotoSendRequest(photo=${photo.contentToString()})"
+    }
+}

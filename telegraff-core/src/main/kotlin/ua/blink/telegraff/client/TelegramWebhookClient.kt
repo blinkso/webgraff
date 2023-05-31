@@ -17,7 +17,7 @@ class TelegramWebhookClient(
     private val telegramApi: TelegramApi,
     private val publisher: ApplicationEventPublisher,
     private val webhookUrl: String
-) : ua.blink.telegraff.client.TelegramClient {
+) : TelegramClient {
 
     @PostConstruct
     override fun start() {

@@ -8,4 +8,9 @@ open class TelegramChatActionRequest(
 
     @get:JsonProperty("action")
     val action: TelegramChatAction
-) : TelegramSendRequest(chatId, TelegramRemoveReplyKeyboard())
+) : TelegramSendRequest(chatId, TelegramRemoveReplyKeyboard()) {
+
+    override fun toString(): String {
+        return "TelegramChatActionRequest(action=$action)"
+    }
+}
