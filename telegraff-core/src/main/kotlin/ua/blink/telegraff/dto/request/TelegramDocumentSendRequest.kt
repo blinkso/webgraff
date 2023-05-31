@@ -14,4 +14,9 @@ open class TelegramDocumentSendRequest(
     caption: String? = null,
 
     parseMode: TelegramParseMode? = null
-) : TelegramMediaSendRequest(chatId, caption, parseMode)
+) : TelegramMediaSendRequest(chatId, caption, parseMode) {
+
+    override fun toString(): String {
+        return "TelegramDocumentSendRequest(document=${document.contentToString()}, name='$name')"
+    }
+}

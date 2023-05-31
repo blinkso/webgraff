@@ -55,6 +55,10 @@ open class TelegramPaymentRequest(
     val startParameter: String = ""
 ) : TelegramSendRequest(chatId, TelegramPaymentReplyKeyboard(paymentButtonText)) {
 
+    override fun toString(): String {
+        return "TelegramPaymentRequest(title='$title', description='$description', payload='$payload', currency='$currency', prices=$prices, needPhoneNumber=$needPhoneNumber, needEmail=$needEmail, needShippingAddress=$needShippingAddress, sendPhoneNumberToProvider=$sendPhoneNumberToProvider, sendEmailNumberToProvider=$sendEmailNumberToProvider, isFlexible=$isFlexible, providerToken='$providerToken', providerData='$providerData', photo=$photo, startParameter='$startParameter')"
+    }
+
     companion object {
         const val TITLE_MAX_LENGTH = 32
         const val DESCRIPTION_MAX_LENGTH = 255

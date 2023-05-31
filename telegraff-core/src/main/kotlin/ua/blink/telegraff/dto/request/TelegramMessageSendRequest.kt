@@ -41,4 +41,7 @@ open class TelegramMessageSendRequest(
         return result
     }
 
+    override fun toString(): String {
+        return "TelegramMessageSendRequest(text='$text', parseMode=$parseMode, disableWebPagePreview=$disableWebPagePreview)"
+    }
 }
