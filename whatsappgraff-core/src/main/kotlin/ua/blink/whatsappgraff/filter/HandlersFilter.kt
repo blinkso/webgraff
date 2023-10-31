@@ -6,7 +6,6 @@ import ua.blink.whatsappgraff.component.ConversationApi
 import ua.blink.whatsappgraff.dsl.Handler
 import ua.blink.whatsappgraff.dsl.HandlerState
 import ua.blink.whatsappgraff.dsl.HandlersFactory
-import ua.blink.whatsappgraff.dto.Chat
 import ua.blink.whatsappgraff.dto.Message
 import ua.blink.whatsappgraff.dto.request.*
 import ua.blink.whatsappgraff.exception.CancelException
@@ -25,7 +24,7 @@ class HandlersFilter(
 ) : Filter {
 
     private val handlers: Map<String, Handler> = handlersFactory.getHandlers()
-    private val states: MutableMap<Long, HandlerState> = ConcurrentHashMap()
+    private val states: MutableMap<String, HandlerState> = ConcurrentHashMap()
 
     override suspend fun handleMessage(
         message: Message,
@@ -37,42 +36,39 @@ class HandlersFilter(
             return
         }
 
-        val state = states[message.chat.id]
+        val state = states[message.chatId]
 
         val response = try {
             if (state == null) {
                 val newState = HandlerState(
-                    chat = message.chat.apply {
-                        // Populating language code in chat entity for further usage
-                        languageCode = message.user?.languageCode
-                    },
+                    chatId = message.chatId,
                     handler = handler
                 )
-                states[message.chat.id] = newState
+                states[message.chatId] = newState
 
                 handleQuestion(newState)
             } else {
                 handleContinuation(state, message)
             }
         } catch (e: CancelException) {
-            clearState(message.chat)
+            clearState(message.chatId)
             e.messageRequest
         } catch (e: Exception) {
             log.error("Error during handler processing", e)
 
-            clearState(message.chat)
-            val locale = Locale(message.user?.languageCode ?: DEFAULT_LOCALE.toLanguageTag())
+            clearState(message.chatId)
+            val locale = Locale(DEFAULT_LOCALE.toLanguageTag())
             MarkdownMessage(
                 "telegram_something_went_wrong".localized(locale),
                 cancelButtonText = "telegram_cancel".localized(locale)
             )
         }
 
-        sendResponse(message.chat, response)
+        sendResponse(message.chatId, response)
     }
 
-    fun clearState(chat: Chat) {
-        states.remove(chat.id)
+    fun clearState(chatId: String) {
+        states.remove(chatId)
     }
 
     private suspend fun handleContinuation(state: HandlerState, message: Message): SendRequest? {
@@ -83,12 +79,12 @@ class HandlersFilter(
         val validation = currentStep.validation
 
         val answer = try {
-            validation(state, text, message.contact, message.photo)
+            validation(state, text, message.photo)
         } catch (e: ValidationException) {
             val question = currentStep.question(state)
-            return MessageSendRequest(0, e.message, question.replyKeyboard)
+            return MessageSendRequest("", e.message, question.replyKeyboard)
         } catch (e: CancelException) {
-            clearState(message.chat)
+            clearState(message.chatId)
             return e.messageRequest
         }
         state.answers[currentStep.key] = answer
@@ -116,13 +112,13 @@ class HandlersFilter(
     }
 
     private suspend fun handleFinalization(state: HandlerState): SendRequest? {
-        clearState(state.chat)
+        clearState(state.chatId)
         return state.handler.process(state, state.answers)
     }
 
-    private fun sendResponse(chat: Chat, response: SendRequest?) {
-        if (response != null && response.chatId == 0L) {
-            response.chatId = chat.id
+    private fun sendResponse(chatId: String, response: SendRequest?) {
+        if (response != null && response.chatId == "") {
+            response.chatId = chatId
         }
 
         when (response) {
@@ -147,12 +143,12 @@ class HandlersFilter(
                 ?: return null
         for (entry in handlers) {
             if (text.startsWith(entry.key)) {
-                clearState(message.chat)
+                clearState(message.chatId)
                 return entry.value
             }
         }
 
-        val state = states[message.chat.id]
+        val state = states[message.chatId]
         if (state != null) {
             return state.handler
         }

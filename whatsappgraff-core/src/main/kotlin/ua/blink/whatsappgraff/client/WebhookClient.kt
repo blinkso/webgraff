@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import ua.blink.whatsappgraff.component.ConversationApi
-import ua.blink.whatsappgraff.dto.Update
+import ua.blink.whatsappgraff.dto.Message
 import ua.blink.whatsappgraff.event.UpdateEvent
 
 @RestController
@@ -17,7 +17,7 @@ class WebhookClient(
     private val conversationApi: ConversationApi,
     private val publisher: ApplicationEventPublisher,
     private val webhookUrl: String
-) : ua.blink.whatsappgraff.client.Client {
+) : Client {
 
     @PostConstruct
     override fun start() {
@@ -32,13 +32,13 @@ class WebhookClient(
         conversationApi.removeWebhook()
     }
 
-    override fun onUpdate(update: Update) {
+    override fun onUpdate(update: Message) {
         log.info("Got a new event: {}", update)
         publisher.publishEvent(UpdateEvent(this, update))
     }
 
     @RequestMapping("#{whatsappProperties.getWebhookEndpointUrl()}")
-    fun update(@RequestBody update: Update): ResponseEntity<String> {
+    fun update(@RequestBody update: Message): ResponseEntity<String> {
         onUpdate(update)
         return ResponseEntity.ok("ok")
     }

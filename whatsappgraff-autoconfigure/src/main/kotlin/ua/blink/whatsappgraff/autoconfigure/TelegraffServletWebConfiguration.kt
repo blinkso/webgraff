@@ -33,7 +33,8 @@ class TelegraffServletWebConfiguration(@Qualifier("whatsappProperties") val prop
     fun api(): ConversationApi {
         return DefaultConversationApi(
             accessKey = properties.accessKey,
-            accountSid = properties.accountSid
+            accountSid = properties.accountSid,
+            serviceSid = properties.serviceSid
         )
     }
 

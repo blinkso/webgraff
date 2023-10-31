@@ -4,7 +4,7 @@ import ua.blink.whatsappgraff.dto.request.keyboard.InlineUrlReplyKeyboard
 import ua.blink.whatsappgraff.dto.request.keyboard.MarkupInlinedReplyKeyboard
 import ua.blink.whatsappgraff.dto.request.keyboard.RemoveReplyKeyboard
 
-class MarkdownInlinedButtonsMessage(text: String, vararg inlines: InlineUrlReplyKeyboard, chatId: Long = 0) :
+class MarkdownInlinedButtonsMessage(text: String, vararg inlines: InlineUrlReplyKeyboard, chatId: String = "") :
     MessageSendRequest(
         chatId,
         text,

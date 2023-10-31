@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import ua.blink.whatsappgraff.dto.request.keyboard.RemoveReplyKeyboard
 
 abstract class MediaSendRequest(
-    chatId: Long,
+    chatId: String,
 
     @get:JsonProperty("caption")
     val caption: String? = null,

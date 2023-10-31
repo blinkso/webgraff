@@ -5,18 +5,13 @@ import ua.blink.whatsappgraff.dto.request.keyboard.RemoveReplyKeyboard
 import ua.blink.whatsappgraff.dto.request.keyboard.ReplyKeyboard
 
 open class MessageSendRequest(
-    chatId: Long,
+    chatId: String,
 
-    @get:JsonProperty("text")
+    @get:JsonProperty("Body")
     val text: String,
 
     replyMarkup: ReplyKeyboard = RemoveReplyKeyboard(),
-
-    disableNotification: Boolean = false,
-
-    @get:JsonProperty("disable_web_page_preview")
-    val disableWebPagePreview: Boolean = false
-) : SendRequest(chatId, replyMarkup, disableNotification) {
+) : SendRequest(chatId, replyMarkup) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -24,7 +19,6 @@ open class MessageSendRequest(
         if (!super.equals(other)) return false
 
         if (text != other.text) return false
-        if (disableWebPagePreview != other.disableWebPagePreview) return false
 
         return true
     }
@@ -32,11 +26,10 @@ open class MessageSendRequest(
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + text.hashCode()
-        result = 31 * result + disableWebPagePreview.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "MessageSendRequest(text='$text', disableWebPagePreview=$disableWebPagePreview)"
+        return "MessageSendRequest(text='$text')"
     }
 }

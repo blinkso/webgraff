@@ -7,7 +7,7 @@ class MarkdownMessage(
     text: String,
     vararg replies: String,
     cancelButtonText: String? = null,
-    chatId: Long = 0
+    chatId: String = ""
 ) : MessageSendRequest(
     chatId,
     text,

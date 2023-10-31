@@ -3,7 +3,7 @@ package ua.blink.whatsappgraff.dto.request
 import com.fasterxml.jackson.annotation.JsonProperty
 
 open class VoiceSendRequest(
-    chatId: Long,
+    chatId: String,
 
     @get:JsonProperty("voice")
     val voice: ByteArray,

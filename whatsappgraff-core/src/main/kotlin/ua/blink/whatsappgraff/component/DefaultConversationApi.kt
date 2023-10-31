@@ -2,78 +2,40 @@ package ua.blink.whatsappgraff.component
 
 import org.slf4j.LoggerFactory
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.core.io.ByteArrayResource
-import org.springframework.util.LinkedMultiValueMap
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import reactor.util.retry.Retry
-import ua.blink.whatsappgraff.dto.File
+import ua.blink.whatsappgraff.dto.Conversation
 import ua.blink.whatsappgraff.dto.Message
-import ua.blink.whatsappgraff.dto.Response
-import ua.blink.whatsappgraff.dto.Update
-import ua.blink.whatsappgraff.dto.request.*
+import ua.blink.whatsappgraff.dto.request.DocumentSendRequest
+import ua.blink.whatsappgraff.dto.request.MessageSendRequest
+import ua.blink.whatsappgraff.dto.request.PhotoSendRequest
+import ua.blink.whatsappgraff.dto.request.VoiceSendRequest
 import java.time.Duration
+import java.util.*
 
 class DefaultConversationApi(
     accessKey: String,
     accountSid: String,
+    private val serviceSid: String
 ) : ConversationApi {
 
     private val restTemplate = WebClient.builder()
-        .baseUrl("https://api.telegram.org/bot$accessKey")
+        .baseUrl("https://conversations.twilio.com/v1")
+        .defaultHeader(
+            HttpHeaders.AUTHORIZATION,
+            "Basic " + Base64.getEncoder().encodeToString("$accountSid:$accessKey".toByteArray())
+        )
         .build()
-    private val fileRestTemplate = WebClient.builder()
-        .baseUrl("https://api.telegram.org/file/bot$accessKey")
-        .build()
-
-    override fun getUpdates(offset: Long?, timeout: Int?): List<Update> {
-        val params = hashMapOf<String, Any>()
-        offset?.let { params["offset"] = it }
-        timeout?.let { params["timeout"] = it }
-
-        return restTemplate
-            .post()
-            .uri("/getUpdates")
-            .body(BodyInserters.fromValue(params))
-            .retrieve()
-            .onStatus(
-                { status -> status.isError },
-                { clientResponse -> clientResponse.handleError("getUpdates($offset $timeout)") }
-            )
-            .bodyToMono(object : ParameterizedTypeReference<Response<List<Update>>>() {})
-            .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
-            .toFuture()
-            .get()
-            .result!!
-    }
-
-    override fun getFile(fileId: String): File {
-        val params = hashMapOf("file_id" to fileId)
-
-        return restTemplate
-            .post()
-            .uri("/getFile")
-            .body(BodyInserters.fromValue(params))
-            .retrieve()
-            .onStatus(
-                { status -> status.isError },
-                { clientResponse -> clientResponse.handleError("getFile($fileId)") }
-            )
-            .bodyToMono(object : ParameterizedTypeReference<Response<File>>() {})
-            .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
-            .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
-            .toFuture()
-            .get()
-            .result!!
-    }
 
     override fun getFileByPath(filePath: String): ByteArray {
-        val params = mapOf<String, String>()
-
-        return fileRestTemplate.get()
-            .uri("/$filePath", params)
+        return restTemplate.get()
+            .uri("/Services/$serviceSid/Conversations/Media/$filePath")
             .retrieve()
             .onStatus(
                 { status -> status.isError },
@@ -85,140 +47,166 @@ class DefaultConversationApi(
             .get()
     }
 
-    override fun setWebhook(url: String): Boolean {
-        val params = hashMapOf("url" to url)
+    override fun setWebhook(url: String) {
+        val params = hashMapOf(
+            "Configuration.Url" to url,
+            "Configuration.Method" to "POST",
+            "Configuration.Filters" to listOf("onMessageAdded"),
+            "Target" to "webhook"
+        )
 
-        return restTemplate
+        restTemplate
             .post()
-            .uri("/setWebhook")
+            .uri("/Services/$serviceSid/Webhooks")
             .body(BodyInserters.fromValue(params))
             .retrieve()
             .onStatus(
                 { status -> status.isError },
                 { clientResponse -> clientResponse.handleError("setWebhook($url)") }
             )
-            .bodyToMono(object : ParameterizedTypeReference<Response<Boolean>>() {})
+            .bodyToMono(object : ParameterizedTypeReference<String>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
             .get()
-            .result!!
     }
 
-    override fun removeWebhook(): Boolean {
+    override fun removeWebhook() {
         return setWebhook("")
     }
 
     override fun sendMessage(request: MessageSendRequest): Message {
         return restTemplate
             .post()
-            .uri("/sendMessage")
+            .uri("/Services/$serviceSid/Conversations/${request.chatId}/Messages")
             .body(BodyInserters.fromValue(request))
             .retrieve()
             .onStatus(
                 { status -> status.isError },
                 { clientResponse -> clientResponse.handleError("sendMessage($request)") }
             )
-            .bodyToMono(object : ParameterizedTypeReference<Response<Message>>() {})
+            .bodyToMono(object : ParameterizedTypeReference<Message>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
             .get()
-            .result!!
+    }
+
+    override fun getUpdates(offset: String?, timeout: Int?): List<Message> {
+        val conversationsFlux = restTemplate.get()
+            .uri("/Services/$serviceSid/Conversations")
+            .retrieve()
+            .bodyToFlux(Conversation::class.java)
+            .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
+            .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
+
+        val messagesFlux = conversationsFlux.flatMap { conversation ->
+            val uri = if (offset != null) {
+                "/Services/$serviceSid/Conversations/${conversation.chatId}/Messages?After=$offset"
+            } else {
+                "/Services/$serviceSid/Conversations/${conversation.chatId}/Messages"
+            }
+            restTemplate.get()
+                .uri(uri)
+                .retrieve()
+                .bodyToFlux(Message::class.java)
+                .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
+                .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
+        }
+
+        return messagesFlux
+            .collectList()
+            .block(Duration.ofSeconds(timeout?.toLong() ?: REQUEST_TIMEOUT_SECONDS))
+            ?: emptyList()
     }
 
     override fun sendDocument(request: DocumentSendRequest): Message {
-        val formData = createFormData(request).apply {
-            add("document", object : ByteArrayResource(request.document) {
-                override fun getFilename(): String {
-                    return request.name
-                }
-            })
-        }
+        val mediaSid = uploadMedia(request.name, request.document, "application/octet-stream")
+
+        val params = hashMapOf(
+            "Body" to "", // The body can be empty since we're sending media
+            "MediaSid" to mediaSid
+        )
 
         return restTemplate
             .post()
-            .uri("/sendDocument")
-            .body(BodyInserters.fromMultipartData(formData))
-//            .headers { headers ->
-//                headers.contentType = MediaType.MULTIPART_FORM_DATA
-//            }
+            .uri("/Services/$serviceSid/Conversations/${request.chatId}/Messages")
+            .body(BodyInserters.fromValue(params))
             .retrieve()
             .onStatus(
                 { status -> status.isError },
                 { clientResponse -> clientResponse.handleError("sendDocument($request)") }
             )
-            .bodyToMono(object : ParameterizedTypeReference<Response<Message>>() {})
+            .bodyToMono(object : ParameterizedTypeReference<Message>() {})
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
             .get()
-            .result!!
     }
 
     override fun sendPhoto(request: PhotoSendRequest): Message {
-        val formData = createFormData(request).apply {
-            add("photo", object : ByteArrayResource(request.photo) {
-                override fun getFilename(): String {
-                    return "picture.png"
-                }
-            })
-        }
+        val mediaSid = uploadMedia("picture.png", request.photo, "image/png")
+
+        val params = hashMapOf(
+            "Body" to "", // The body can be empty since we're sending media
+            "MediaSid" to mediaSid
+        )
 
         return restTemplate
             .post()
-            .uri("/sendPhoto")
-            .body(BodyInserters.fromMultipartData(formData))
-//            .headers { headers ->
-//                headers.contentType = MediaType.MULTIPART_FORM_DATA
-//            }
+            .uri("/Services/$serviceSid/Conversations/${request.chatId}/Messages")
+            .body(BodyInserters.fromValue(params))
             .retrieve()
             .onStatus(
                 { status -> status.isError },
                 { clientResponse -> clientResponse.handleError("sendPhoto($request)") }
             )
-            .bodyToMono(object : ParameterizedTypeReference<Response<Message>>() {})
+            .bodyToMono(object : ParameterizedTypeReference<Message>() {})
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
             .get()
-            .result!!
     }
 
     override fun sendVoice(request: VoiceSendRequest): Message {
-        val formData = createFormData(request).apply {
-            add("voice", object : ByteArrayResource(request.voice) {
-                override fun getFilename(): String {
-                    return "voice.mp3"
-                }
-            })
-        }
+        val mediaSid = uploadMedia("voice.mp3", request.voice, "audio/mpeg")
+
+        val params = hashMapOf(
+            "Body" to "", // The body can be empty since we're sending media
+            "MediaSid" to mediaSid
+        )
 
         return restTemplate
             .post()
-            .uri("/sendVoice")
-            .body(BodyInserters.fromMultipartData(formData))
-//            .headers { headers ->
-//                headers.contentType = MediaType.MULTIPART_FORM_DATA
-//            }
+            .uri("/Services/$serviceSid/Conversations/${request.chatId}/Messages")
+            .body(BodyInserters.fromValue(params))
             .retrieve()
             .onStatus(
                 { status -> status.isError },
                 { clientResponse -> clientResponse.handleError("sendVoice($request)") }
             )
-            .bodyToMono(object : ParameterizedTypeReference<Response<Message>>() {})
+            .bodyToMono(object : ParameterizedTypeReference<Message>() {})
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
             .get()
-            .result!!
     }
 
-    private fun createFormData(request: MediaSendRequest): LinkedMultiValueMap<String, Any> =
-        LinkedMultiValueMap<String, Any>().apply {
-            add("chat_id", request.chatId)
-            add("reply_markup", request.replyKeyboard)
-            add("disable_notification", request.disableNotification)
-            request.caption?.let { add("caption", request.caption) }
-//            request.parseMode?.let { add("parse_mode", request.parseMode.name) }
-        }
+    private fun uploadMedia(filename: String, fileBytes: ByteArray, mediaType: String): String {
+        val formData = MultipartBodyBuilder().apply {
+            part("Content", fileBytes)
+                .filename(filename)
+                .header(HttpHeaders.CONTENT_TYPE, mediaType)
+        }.build()
+
+        return restTemplate
+            .post()
+            .uri("/Services/$serviceSid/Media")
+            .contentType(MediaType.MULTIPART_FORM_DATA)
+            .body(BodyInserters.fromMultipartData(formData))
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<Message>() {})
+            .toFuture()
+            .get()
+            .sid
+    }
 
     private fun ClientResponse.handleError(logMarker: String): Mono<Throwable> {
         return bodyToMono(String::class.java).flatMap { errorBody ->

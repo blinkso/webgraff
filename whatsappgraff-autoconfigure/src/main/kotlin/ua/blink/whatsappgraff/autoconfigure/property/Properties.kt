@@ -14,9 +14,14 @@ class Properties {
     var accessKey: String = ""
 
     /**
-     * WhatsApp Bot API Access Key.
+     * WhatsApp Bot API Account Key.
      */
     var accountSid: String = ""
+
+    /**
+     * WhatsApp Bot API Service Key.
+     */
+    var serviceSid: String = ""
 
     /**
      * WhatsApp updates mode.

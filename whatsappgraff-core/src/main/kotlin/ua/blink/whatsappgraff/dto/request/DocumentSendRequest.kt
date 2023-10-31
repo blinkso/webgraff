@@ -3,7 +3,7 @@ package ua.blink.whatsappgraff.dto.request
 import com.fasterxml.jackson.annotation.JsonProperty
 
 open class DocumentSendRequest(
-    chatId: Long,
+    chatId: String,
 
     @get:JsonProperty("document")
     val document: ByteArray,

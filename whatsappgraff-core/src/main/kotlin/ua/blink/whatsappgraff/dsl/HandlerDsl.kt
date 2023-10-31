@@ -1,7 +1,6 @@
 package ua.blink.whatsappgraff.dsl
 
 import org.springframework.context.support.GenericApplicationContext
-import ua.blink.whatsappgraff.dto.Contact
 import ua.blink.whatsappgraff.dto.Photo
 import ua.blink.whatsappgraff.dto.request.SendRequest
 import ua.blink.whatsappgraff.exception.HandlerException
@@ -93,7 +92,7 @@ class StepDsl<T : Any>(val key: String) {
         return Step(
             key,
             question ?: throw HandlerException("Step question must not be null!"),
-            validation ?: { _, answer, _, _ ->
+            validation ?: { _, answer, _ ->
                 @Suppress("UNCHECKED_CAST")
                 answer as T
             },
@@ -105,6 +104,6 @@ class StepDsl<T : Any>(val key: String) {
 
 typealias ProcessBlock = suspend (state: HandlerState, answers: Map<String, Any>) -> SendRequest?
 typealias QuestionBlock = suspend (HandlerState) -> SendRequest
-typealias ValidationBlock<T> = suspend (state: HandlerState, answer: String, contact: Contact?, photo: List<Photo>?) -> T
+typealias ValidationBlock<T> = suspend (state: HandlerState, answer: String, photo: List<Photo>?) -> T
 typealias NextStepBlock = suspend (HandlerState) -> String?
 typealias HandlerDslWrapper = suspend (GenericApplicationContext) -> Handler

@@ -6,14 +6,14 @@ import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import ua.blink.whatsappgraff.component.ConversationApi
-import ua.blink.whatsappgraff.dto.Update
+import ua.blink.whatsappgraff.dto.Message
 import ua.blink.whatsappgraff.event.UpdateEvent
 import java.util.concurrent.TimeUnit
 
 class PollingClient(
     private val conversationApi: ConversationApi,
     private val publisher: ApplicationEventPublisher
-) : ua.blink.whatsappgraff.client.Client, ApplicationListener<ApplicationReadyEvent> {
+) : Client, ApplicationListener<ApplicationReadyEvent> {
 
     private val client = Client()
 
@@ -32,21 +32,21 @@ class PollingClient(
         client.join()
     }
 
-    override fun onUpdate(update: Update) {
-        ua.blink.whatsappgraff.client.PollingClient.Companion.log.info("Got a new event: {}", update)
+    override fun onUpdate(update: Message) {
+        log.info("Got a new event: {}", update)
         publisher.publishEvent(UpdateEvent(this, update))
     }
 
     private inner class Client : Thread("PollingClient") {
 
-        private var offset: Long = 0
+        private var offset: String = ""
 
         override fun run() {
             while (!isInterrupted) {
                 try {
                     val updates = conversationApi.getUpdates(
                         offset,
-                        ua.blink.whatsappgraff.client.PollingClient.Companion.POLLING_TIMEOUT
+                        POLLING_TIMEOUT
                     )
                     if (updates.isEmpty()) {
                         continue
@@ -58,12 +58,9 @@ class PollingClient(
                     }
 
                     // --
-                    offset = updates.last().id + 1
+                    offset = updates.last().sid
                 } catch (e: Exception) {
-                    ua.blink.whatsappgraff.client.PollingClient.Companion.log.error(
-                        "Exception during polling messages",
-                        e
-                    )
+                    log.error("Exception during polling messages", e)
                     TimeUnit.SECONDS.sleep(10)
                 }
             }
@@ -72,7 +69,7 @@ class PollingClient(
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(ua.blink.whatsappgraff.client.PollingClient::class.java)
+        private val log = LoggerFactory.getLogger(PollingClient::class.java)
         private const val POLLING_TIMEOUT = 10
     }
 

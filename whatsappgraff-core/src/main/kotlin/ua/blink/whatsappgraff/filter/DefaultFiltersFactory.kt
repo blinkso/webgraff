@@ -26,9 +26,9 @@ class DefaultFiltersFactory(filters: List<Filter>) :
 
     override fun process(event: UpdateEvent) {
         launch {
-            if (event.update.message != null) { // only new messages are supported
+            if (event.update != null) { // only new messages are supported
                 val chain = DefaultFilterChain(filters)
-                chain.doFilter(event.update.message)
+                chain.doFilter(event.update)
             }
         }
     }
