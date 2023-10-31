@@ -5,11 +5,12 @@
 ## Settings
 
 ```
-telegram.access-key=                  # api key
-telegram.mode=                        # polling (default), webhook
-telegram.webhook-base-url=            # required for webhook mode
-telegram.webhook-endpoint-url=        # optional
-telegram.payment-provider=            # payment provider key
+whatsapp.access-key=                  # api key
+whatsapp.account-sid=                 # account sid
+whatsapp.mode=                        # polling (default), webhook
+whatsapp.webhook-base-url=            # required for webhook mode
+whatsapp.webhook-endpoint-url=        # optional
+whatsapp.payment-provider=            # payment provider key
 ```
 
 ## Usage

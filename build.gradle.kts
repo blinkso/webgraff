@@ -10,8 +10,8 @@ plugins {
     id("org.springframework.boot") version "3.0.5"
 }
 
-group = "ua.blink.telegraff"
-version = "1.0.8"
+group = "ua.blink.whatsappgraff"
+version = "1.0.0"
 
 allprojects {
     repositories {
@@ -73,13 +73,13 @@ subprojects {
         compileKotlin {
             kotlinOptions {
                 freeCompilerArgs = listOf("-Xjsr305=strict")
-                jvmTarget = "17"
+                jvmTarget = JavaVersion.VERSION_17.majorVersion
             }
         }
         compileTestKotlin {
             kotlinOptions {
                 freeCompilerArgs = listOf("-Xjsr305=strict")
-                jvmTarget = "17"
+                jvmTarget = JavaVersion.VERSION_17.majorVersion
             }
         }
 
@@ -111,8 +111,8 @@ subprojects {
 
                 pom {
                     val GITHUB_TELEGRAFF_URL: String by project
-                    name.set("telegraff")
-                    description.set("Kotlin DSL for Telegram bot development")
+                    name.set("whatsappgraff")
+                    description.set("Kotlin DSL for WhatsApp bot development")
                     url.set(GITHUB_TELEGRAFF_URL)
                     licenses {
                         license {
@@ -124,7 +124,7 @@ subprojects {
                         developer {
                             id.set("gazanfarov")
                             name.set("Ruslan Gazanfarov")
-                            email.set("ruslan.gazanfarov@blink.so")
+                            email.set("ruslan.gazanfarov@eventmate.email")
                         }
                     }
                 }
