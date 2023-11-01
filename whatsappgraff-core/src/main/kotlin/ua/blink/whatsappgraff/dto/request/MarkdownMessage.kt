@@ -1,7 +1,6 @@
 package ua.blink.whatsappgraff.dto.request
 
 import ua.blink.whatsappgraff.dto.request.keyboard.MarkupReplyKeyboard
-import ua.blink.whatsappgraff.dto.request.keyboard.RemoveReplyKeyboard
 
 class MarkdownMessage(
     text: String,
@@ -17,6 +16,6 @@ class MarkdownMessage(
             cancelButtonText = cancelButtonText
         )
     } else {
-        RemoveReplyKeyboard()
+        null
     }
 )

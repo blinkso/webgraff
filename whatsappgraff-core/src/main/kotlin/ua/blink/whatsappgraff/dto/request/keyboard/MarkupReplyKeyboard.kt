@@ -4,21 +4,20 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 class MarkupReplyKeyboard(
     answers: List<String>,
-    columns: Int = DEFAULT_COLUMNS_NUMBER,
     cancelButtonText: String? = null,
-
-    @get:JsonProperty("resize_keyboard")
-    val resizeKeyboard: Boolean = true,
-
-    @get:JsonProperty("one_time_keyboard")
-    val oneTimeKeyboard: Boolean = true
 ) : ReplyKeyboard() {
 
-    val keyboard: List<List<String>> = answers.asSequence()
-        .chunked(columns)
+    @get:JsonProperty("buttons")
+    val buttons: List<ReplyKeyboard> = answers
+        .map { InlineUrlReplyKeyboard(text = it, callbackData = it) }
         .let { keyboardButtons ->
             if (cancelButtonText != null) {
-                keyboardButtons.plusElement(listOf(cancelButtonText))
+                keyboardButtons.plusElement(
+                    InlineUrlReplyKeyboard(
+                        text = cancelButtonText,
+                        callbackData = cancelButtonText
+                    )
+                )
             } else {
                 keyboardButtons
             }
@@ -34,18 +33,14 @@ class MarkupReplyKeyboard(
         if (other !is MarkupReplyKeyboard) return false
         if (!super.equals(other)) return false
 
-        if (resizeKeyboard != other.resizeKeyboard) return false
-        if (oneTimeKeyboard != other.oneTimeKeyboard) return false
-        if (keyboard != other.keyboard) return false
+        if (buttons != other.buttons) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + resizeKeyboard.hashCode()
-        result = 31 * result + oneTimeKeyboard.hashCode()
-        result = 31 * result + keyboard.hashCode()
+        result = 31 * result + buttons.hashCode()
         return result
     }
 

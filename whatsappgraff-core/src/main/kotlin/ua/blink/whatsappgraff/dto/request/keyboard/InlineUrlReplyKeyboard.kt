@@ -1,14 +1,16 @@
 package ua.blink.whatsappgraff.dto.request.keyboard
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 class InlineUrlReplyKeyboard(
-    @get:JsonProperty("text")
+    @get:JsonProperty("title")
     val text: String,
     @get:JsonProperty("url")
-    val url: String = "",
-    @get:JsonProperty("callback_data")
-    val callbackData: String = ""
+    val url: String? = null,
+    @get:JsonProperty("payload")
+    val callbackData: String? = null
 ) : ReplyKeyboard() {
 
     override fun equals(other: Any?): Boolean {

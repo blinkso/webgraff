@@ -82,7 +82,7 @@ class HandlersFilter(
             validation(state, text, message.photo)
         } catch (e: ValidationException) {
             val question = currentStep.question(state)
-            return MessageSendRequest("", e.message, question.replyKeyboard)
+            return MessageSendRequest("", e.message, question.buttons)
         } catch (e: CancelException) {
             clearState(message.chatId)
             return e.messageRequest

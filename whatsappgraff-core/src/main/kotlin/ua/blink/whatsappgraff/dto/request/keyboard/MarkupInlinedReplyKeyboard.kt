@@ -3,19 +3,11 @@ package ua.blink.whatsappgraff.dto.request.keyboard
 import com.fasterxml.jackson.annotation.JsonProperty
 
 class MarkupInlinedReplyKeyboard(
-    inlines: List<InlineUrlReplyKeyboard>,
-    columns: Int = DEFAULT_COLUMNS_NUMBER
+    inlines: List<InlineUrlReplyKeyboard>
 ) : ReplyKeyboard() {
 
-    @get:JsonProperty("inline_keyboard")
-    val inlineKeyboard: List<List<ReplyKeyboard>> =
-        inlines.asSequence()
-            .chunked(columns)
-            .toList()
-
-    companion object {
-        private const val DEFAULT_COLUMNS_NUMBER = 1
-    }
+    @get:JsonProperty("buttons")
+    val buttons: List<ReplyKeyboard> = inlines.toList()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -24,16 +16,14 @@ class MarkupInlinedReplyKeyboard(
 
         other as MarkupInlinedReplyKeyboard
 
-        if (inlineKeyboard != other.inlineKeyboard) return false
+        if (buttons != other.buttons) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + inlineKeyboard.hashCode()
+        result = 31 * result + buttons.hashCode()
         return result
     }
-
-
 }

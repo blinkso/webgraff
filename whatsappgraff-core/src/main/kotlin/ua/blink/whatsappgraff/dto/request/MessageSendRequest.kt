@@ -1,7 +1,6 @@
 package ua.blink.whatsappgraff.dto.request
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import ua.blink.whatsappgraff.dto.request.keyboard.RemoveReplyKeyboard
 import ua.blink.whatsappgraff.dto.request.keyboard.ReplyKeyboard
 
 open class MessageSendRequest(
@@ -10,7 +9,7 @@ open class MessageSendRequest(
     @get:JsonProperty("Body")
     val text: String,
 
-    replyMarkup: ReplyKeyboard = RemoveReplyKeyboard(),
+    replyMarkup: ReplyKeyboard? = null,
 ) : SendRequest(chatId, replyMarkup) {
 
     override fun equals(other: Any?): Boolean {

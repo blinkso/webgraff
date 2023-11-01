@@ -10,8 +10,8 @@ abstract class SendRequest(
     @JsonIgnore
     var chatId: String,
 
-    @get:JsonProperty("reply_markup")
-    val replyKeyboard: ReplyKeyboard,
+    @get:JsonProperty("buttons")
+    val buttons: ReplyKeyboard? = null,
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -19,14 +19,14 @@ abstract class SendRequest(
         if (other !is SendRequest) return false
 
         if (chatId != other.chatId) return false
-        if (replyKeyboard != other.replyKeyboard) return false
+        if (buttons != other.buttons) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = chatId.hashCode()
-        result = 31 * result + replyKeyboard.hashCode()
+        result = 31 * result + buttons.hashCode()
         return result
     }
 

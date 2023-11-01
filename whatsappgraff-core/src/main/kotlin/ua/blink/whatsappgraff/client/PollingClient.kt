@@ -44,24 +44,28 @@ class PollingClient(
         override fun run() {
             while (!isInterrupted) {
                 try {
-                    val updates = conversationApi.getUpdates(
-                        offset,
-                        POLLING_TIMEOUT
-                    )
+                    val updates =
+                        conversationApi.getUpdates(offset = offset.takeIf { it != "" }, timeout = POLLING_TIMEOUT)
                     if (updates.isEmpty()) {
                         continue
                     }
 
-                    // publish updates
-                    for (update in updates) {
+                    // Find the index of the update with the specified offset SID
+                    val offsetIndex = updates.indexOfFirst { it.sid == offset }
+
+                    // If the offset SID is found, process updates after it; otherwise, process all updates
+                    val updatesToProcess = if (offsetIndex != -1) updates.drop(offsetIndex + 1) else updates
+
+                    // Publish updates
+                    for (update in updatesToProcess) {
                         onUpdate(update)
                     }
 
-                    // --
-                    offset = updates.last().sid
+                    // Update the offset to the SID of the last update processed, if any
+                    offset = updatesToProcess.lastOrNull()?.sid ?: updates.last().sid
                 } catch (e: Exception) {
                     log.error("Exception during polling messages", e)
-                    TimeUnit.SECONDS.sleep(10)
+                    TimeUnit.SECONDS.sleep(POLLING_TIMEOUT)
                 }
             }
         }
@@ -70,7 +74,7 @@ class PollingClient(
 
     companion object {
         private val log = LoggerFactory.getLogger(PollingClient::class.java)
-        private const val POLLING_TIMEOUT = 10
+        private const val POLLING_TIMEOUT = 10L
     }
 
 

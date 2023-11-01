@@ -1,23 +1,12 @@
 package ua.blink.whatsappgraff.dto.request.keyboard
 
-import com.fasterxml.jackson.annotation.JsonProperty
-
-abstract class ReplyKeyboard(
-    @get:JsonProperty("selective")
-    val selective: Boolean = false
-) {
-
+abstract class ReplyKeyboard {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ReplyKeyboard) return false
-
-        if (selective != other.selective) return false
-
-        return true
+        return javaClass == other?.javaClass
     }
 
     override fun hashCode(): Int {
-        return selective.hashCode()
+        return javaClass.hashCode()
     }
-
 }

@@ -8,7 +8,7 @@ import ua.blink.whatsappgraff.dto.request.VoiceSendRequest
 
 interface ConversationApi {
 
-    fun getUpdates(offset: String?, timeout: Int?): List<Message>
+    fun getUpdates(offset: String?, timeout: Long?): List<Message>
 
     fun getUpdates(offset: String?): List<Message> {
         return getUpdates(offset, null)

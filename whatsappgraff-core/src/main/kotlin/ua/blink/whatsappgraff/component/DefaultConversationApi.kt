@@ -92,7 +92,7 @@ class DefaultConversationApi(
             .get()
     }
 
-    override fun getUpdates(offset: String?, timeout: Int?): List<Message> {
+    override fun getUpdates(offset: String?, timeout: Long?): List<Message> {
         val conversationsFlux = restTemplate.get()
             .uri("/Services/$serviceSid/Conversations")
             .retrieve()
@@ -102,7 +102,7 @@ class DefaultConversationApi(
 
         val messagesFlux = conversationsFlux.flatMap { conversation ->
             val uri = if (offset != null) {
-                "/Services/$serviceSid/Conversations/${conversation.chatId}/Messages?After=$offset"
+                "/Services/$serviceSid/Conversations/${conversation.chatId}/Messages?AfterSid=$offset"
             } else {
                 "/Services/$serviceSid/Conversations/${conversation.chatId}/Messages"
             }
@@ -116,7 +116,7 @@ class DefaultConversationApi(
 
         return messagesFlux
             .collectList()
-            .block(Duration.ofSeconds(timeout?.toLong() ?: REQUEST_TIMEOUT_SECONDS))
+            .block(Duration.ofSeconds(timeout ?: REQUEST_TIMEOUT_SECONDS))
             ?: emptyList()
     }
 
@@ -124,7 +124,7 @@ class DefaultConversationApi(
         val mediaSid = uploadMedia(request.name, request.document, "application/octet-stream")
 
         val params = hashMapOf(
-            "Body" to "", // The body can be empty since we're sending media
+            "Body" to (request.caption ?: ""), // The body can be empty since we're sending media
             "MediaSid" to mediaSid
         )
 
@@ -147,7 +147,7 @@ class DefaultConversationApi(
         val mediaSid = uploadMedia("picture.png", request.photo, "image/png")
 
         val params = hashMapOf(
-            "Body" to "", // The body can be empty since we're sending media
+            "Body" to (request.caption ?: ""), // The body can be empty since we're sending media
             "MediaSid" to mediaSid
         )
 
@@ -170,7 +170,7 @@ class DefaultConversationApi(
         val mediaSid = uploadMedia("voice.mp3", request.voice, "audio/mpeg")
 
         val params = hashMapOf(
-            "Body" to "", // The body can be empty since we're sending media
+            "Body" to (request.caption ?: ""), // The body can be empty since we're sending media
             "MediaSid" to mediaSid
         )
 

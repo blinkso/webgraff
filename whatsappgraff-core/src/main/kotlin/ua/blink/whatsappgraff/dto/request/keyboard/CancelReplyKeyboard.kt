@@ -4,8 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 class CancelReplyKeyboard(
     cancelButtonText: String,
-    @get:JsonProperty("text")
-    val text: String = cancelButtonText
+
+    @get:JsonProperty("buttons")
+    val buttons: List<InlineUrlReplyKeyboard> = listOf(
+        InlineUrlReplyKeyboard(
+            text = cancelButtonText,
+            callbackData = cancelButtonText
+        )
+    )
 ) : ReplyKeyboard() {
 
     override fun equals(other: Any?): Boolean {
@@ -14,12 +20,12 @@ class CancelReplyKeyboard(
 
         other as CancelReplyKeyboard
 
-        if (text != other.text) return false
+        if (buttons != other.buttons) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return text.hashCode()
+        return buttons.hashCode()
     }
 }
