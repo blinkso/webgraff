@@ -4,6 +4,8 @@ import java.util.concurrent.ConcurrentHashMap
 
 class HandlerState(
     val chatId: String,
+    val contact: String,
+    val username: String,
     val handler: Handler
 ) {
 

@@ -19,6 +19,20 @@ class PropertiesValidator : Validator {
             )
         }
 
+        if (properties.accountSid.isEmpty()) {
+            errors.rejectValue(
+                "accountSid", "accountSid.null",
+                "Account SID must not be null!"
+            )
+        }
+
+        if (properties.serviceSid.isEmpty()) {
+            errors.rejectValue(
+                "serviceSid", "serviceSid.null",
+                "Service SID must not be null!"
+            )
+        }
+
         if (properties.handlersPath.isEmpty()) {
             errors.rejectValue(
                 "handlersPath", "handlersPath.null",

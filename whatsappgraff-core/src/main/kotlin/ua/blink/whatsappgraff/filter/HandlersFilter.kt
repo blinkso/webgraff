@@ -42,6 +42,8 @@ class HandlersFilter(
             if (state == null) {
                 val newState = HandlerState(
                     chatId = message.chatId,
+                    contact = message.user ?: "",
+                    username = message.user ?: "",
                     handler = handler
                 )
                 states[message.chatId] = newState
