@@ -42,4 +42,4 @@ const val UKRAINIAN_LOCALE = "uk"
 const val ENGLISH_LOCALE = "en"
 // https://stackoverflow.com/questions/42245519/datetimeformatter-not-work-with-llll-pattern-in-en-locale
 val LOCALES_WITH_STANDALONE_CASE = setOf(RUSSIAN_LOCALE, UKRAINIAN_LOCALE)
-val DEFAULT_LOCALE = Locale(UKRAINIAN_LOCALE)
+val DEFAULT_LOCALE = Locale(ENGLISH_LOCALE)

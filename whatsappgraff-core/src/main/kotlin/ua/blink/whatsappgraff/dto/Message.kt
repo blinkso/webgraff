@@ -9,7 +9,7 @@ data class Message(
     @JsonProperty("account_sid")
     val accountSid: String,
 
-    @JsonProperty("service_sid")
+    @JsonProperty("chat_service_sid")
     val serviceSid: String,
 
     @JsonProperty("conversation_sid")
@@ -32,7 +32,7 @@ data class Message(
     // for it's validation
     fun getMessageText(): String? {
         return if (photo != null) {
-            photo.firstOrNull()?.id ?: text
+            photo.firstOrNull()?.sid ?: text
         } else {
             text
         }

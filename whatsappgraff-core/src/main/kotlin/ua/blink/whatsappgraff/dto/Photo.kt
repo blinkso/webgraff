@@ -3,15 +3,18 @@ package ua.blink.whatsappgraff.dto
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class Photo(
-    @JsonProperty("sid")
-    val id: String,
+    @JsonProperty("category")
+    val category: String,
 
     @JsonProperty("filename")
-    val uniqueId: String?,
-
-    @JsonProperty("content_type")
-    val contentType: String?,
+    val filename: String?,
 
     @JsonProperty("size")
-    val size: Long?
+    val size: Int,
+
+    @JsonProperty("content_type")
+    val contentType: String,
+
+    @JsonProperty("sid")
+    val sid: String
 )
