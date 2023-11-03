@@ -3,7 +3,7 @@ package ua.blink.whatsappgraff.dto.request
 import com.fasterxml.jackson.annotation.JsonProperty
 
 open class PhotoSendRequest(
-    chatId: String,
+    chatId: String = "",
 
     @get:JsonProperty("photo")
     val photo: ByteArray,

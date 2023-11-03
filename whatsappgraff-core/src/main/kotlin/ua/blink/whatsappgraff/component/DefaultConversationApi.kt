@@ -20,7 +20,6 @@ import ua.blink.whatsappgraff.dto.request.DocumentSendRequest
 import ua.blink.whatsappgraff.dto.request.MessageSendRequest
 import ua.blink.whatsappgraff.dto.request.PhotoSendRequest
 import ua.blink.whatsappgraff.dto.request.VoiceSendRequest
-import ua.blink.whatsappgraff.dto.request.keyboard.CancelReplyKeyboard
 import ua.blink.whatsappgraff.dto.request.keyboard.InlineUrlReplyKeyboard
 import ua.blink.whatsappgraff.dto.request.keyboard.MarkupInlinedReplyKeyboard
 import ua.blink.whatsappgraff.dto.request.keyboard.MarkupReplyKeyboard
@@ -153,18 +152,124 @@ class DefaultConversationApi(
     override fun sendMessage(request: MessageSendRequest): Message {
         // Convert MessageSendRequest to form data
         val formData: MultiValueMap<String, String> = LinkedMultiValueMap<String, String>().apply {
-            var text = ""
-            text += request.text
-            (request.buttons as? MarkupReplyKeyboard)?.buttons?.forEach { button ->
-                text += "\n${(button as? InlineUrlReplyKeyboard)?.text} ${(button as? InlineUrlReplyKeyboard)?.url} ${(button as? InlineUrlReplyKeyboard)?.text}"
+            when {
+                request.buttons is MarkupInlinedReplyKeyboard && request.buttons.buttons.size <= 3 && request.buttons.buttons.all { it is InlineUrlReplyKeyboard && it.url == null } -> {
+                    val contentSid = when (request.buttons.buttons.size) {
+                        1 -> "HXf113a83d6951cca5f1583a4fb0d7a988"
+                        2 -> "HX0d3631717c0597db8e63307ac792726e"
+                        else -> "HX32ea167350eefa2e5a41a493a20a89bc"
+                    }
+
+                    val variables = buildString {
+                        append("{\"1\":\"${request.text}\"")
+                        request.buttons.buttons.forEachIndexed { index, button ->
+                            button as InlineUrlReplyKeyboard
+                            append(", \"${index + 2}\":\"${button.text.take(BUTTON_MAX_LENGTH)}\"")
+                        }
+                        append("}")
+                    }
+
+                    val attributes = request.buttons.buttons
+                        .withIndex()
+                        .joinToString(prefix = "{", postfix = "}") { (index, button) ->
+                            button as InlineUrlReplyKeyboard
+                            "\"${index + 2}\":\"${button.callbackData ?: ""}\""
+                        }
+
+                    add("ContentSid", contentSid)
+                    add("ContentVariables", variables.replace("\\r?\\n|\\r".toRegex(), "  "))
+                    add("Attributes", attributes)
+                    log.info("TEST 1\n\n$contentSid\n\n$variables\n\n$attributes")
+                }
+
+                request.buttons is MarkupInlinedReplyKeyboard && request.buttons.buttons.all { it is InlineUrlReplyKeyboard && it.url != null } -> {
+                    val text = buildString {
+                        append(request.text)
+                        append("\n\n")
+                        request.buttons.buttons.forEach { button ->
+                            button as InlineUrlReplyKeyboard
+                            append("${button.text}: ${button.url}")
+                        }
+                    }
+                    add("Body", text)
+                    log.info("TEST 2\n\n$text")
+                }
+
+                request.buttons is MarkupInlinedReplyKeyboard -> {
+                    val contentSid = when (request.buttons.buttons.size) {
+                        1 -> "HXf734048374f583cb6f860ba10776a3c8"
+                        2 -> "HX26a343ae652005995d8e6393666583ac"
+                        3 -> "HXc997d17edaa9d731a45e4d26fa5feb4b"
+                        4 -> "HX841de4bdaa941dedcf9a74dbcf8ed628"
+                        5 -> "HXcd1cc7e45a6ba157ac128a00417bb4ff"
+                        6 -> "HX41433473e50e8e01218f20f7a25a62de"
+                        7 -> "HX85cabf5052512c51efecd7711dbe8cee"
+                        else -> "HXed7e3db98e1de585f9f631458306fe21"
+                    }
+
+                    val variables = buildString {
+                        append("{\"1\":\"${request.text}\"")
+                        append(", \"2\":\"Choose action\"")
+                        request.buttons.buttons.forEachIndexed { index, button ->
+                            button as InlineUrlReplyKeyboard
+                            append(", \"${index + 3}\":\"${button.text.take(LIST_ITEM_MAX_LENGTH)}\"")
+                        }
+                        append("}")
+                    }
+
+                    val attributes = request.buttons.buttons
+                        .withIndex()
+                        .joinToString(prefix = "{", postfix = "}") { (index, button) ->
+                            button as InlineUrlReplyKeyboard
+                            "\"${index + 3}\":\"${button.callbackData ?: ""}\""
+                        }
+
+                    add("ContentSid", contentSid)
+                    add("ContentVariables", variables.replace("\\r?\\n|\\r".toRegex(), "  "))
+                    add("Attributes", attributes)
+                    log.info("TEST 3\n\n$contentSid\n\n$variables\n\n$attributes")
+                }
+
+                request.buttons is MarkupReplyKeyboard -> {
+                    val contentSid = when (request.buttons.buttons.size) {
+                        1 -> "HXf734048374f583cb6f860ba10776a3c8"
+                        2 -> "HX26a343ae652005995d8e6393666583ac"
+                        3 -> "HXc997d17edaa9d731a45e4d26fa5feb4b"
+                        4 -> "HX841de4bdaa941dedcf9a74dbcf8ed628"
+                        5 -> "HXcd1cc7e45a6ba157ac128a00417bb4ff"
+                        6 -> "HX41433473e50e8e01218f20f7a25a62de"
+                        7 -> "HX85cabf5052512c51efecd7711dbe8cee"
+                        else -> "HXed7e3db98e1de585f9f631458306fe21"
+                    }
+
+                    val variables = buildString {
+                        append("{\"1\":\"${request.text}\"")
+                        append(", \"2\":\"Choose action\"")
+                        request.buttons.buttons.forEachIndexed { index, button ->
+                            button as InlineUrlReplyKeyboard
+                            append(", \"${index + 3}\":\"${button.text.take(LIST_ITEM_MAX_LENGTH)}\"")
+                        }
+                        append("}")
+                    }
+
+                    val attributes = request.buttons.buttons
+                        .withIndex()
+                        .joinToString(prefix = "{", postfix = "}") { (index, button) ->
+                            button as InlineUrlReplyKeyboard
+                            "\"${index + 3}\":\"${button.callbackData ?: ""}\""
+                        }
+
+                    add("ContentSid", contentSid)
+                    add("ContentVariables", variables.replace("\\r?\\n|\\r".toRegex(), "  "))
+                    add("Attributes", attributes)
+                    log.info("TEST 4\n\n$contentSid\n\n$variables\n\n$attributes")
+                }
+
+                else -> {
+                    add("Body", request.text)
+                    log.info("TEST 5\n\n${request.text}")
+                }
             }
-            (request.buttons as? MarkupInlinedReplyKeyboard)?.buttons?.forEach { button ->
-                text += "\n${(button as? InlineUrlReplyKeyboard)?.text} ${(button as? InlineUrlReplyKeyboard)?.url} ${(button as? InlineUrlReplyKeyboard)?.text}"
-            }
-            (request.buttons as? CancelReplyKeyboard)?.buttons?.forEach { button ->
-                text += "\n${(button as? InlineUrlReplyKeyboard)?.text} ${(button as? InlineUrlReplyKeyboard)?.url} ${(button as? InlineUrlReplyKeyboard)?.text}"
-            }
-            add("Body", text)
         }
 
         return restTemplate
@@ -287,6 +392,8 @@ class DefaultConversationApi(
     private companion object {
         private val log = LoggerFactory.getLogger(DefaultConversationApi::class.java)
         private const val REQUEST_TIMEOUT_SECONDS = 10L
+        private const val BUTTON_MAX_LENGTH = 20
+        private const val LIST_ITEM_MAX_LENGTH = 24
         private const val MIN_BACKOFF_SECONDS = 2L
         private const val MAX_RETRY_ATTEMPTS = 3L
     }
