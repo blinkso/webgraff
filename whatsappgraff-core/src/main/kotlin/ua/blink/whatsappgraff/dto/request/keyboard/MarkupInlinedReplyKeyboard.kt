@@ -3,11 +3,20 @@ package ua.blink.whatsappgraff.dto.request.keyboard
 import com.fasterxml.jackson.annotation.JsonProperty
 
 class MarkupInlinedReplyKeyboard(
-    inlines: List<InlineUrlReplyKeyboard>
+    inlines: List<InlineUrlReplyKeyboard>,
+    chooseActionButton: String? = null
 ) : ReplyKeyboard() {
 
     @get:JsonProperty("buttons")
-    val buttons: List<ReplyKeyboard> = inlines.toList()
+    val buttons: List<ReplyKeyboard> = inlines
+        .toList()
+        .let { keyboardButtons ->
+            if (chooseActionButton != null) {
+                keyboardButtons.plusElement(ActionReplyKeyboard(text = chooseActionButton))
+            } else {
+                keyboardButtons
+            }
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -5,26 +5,27 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.MultipartBodyBuilder
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
+import reactor.netty.http.client.HttpClient
 import reactor.util.retry.Retry
 import ua.blink.whatsappgraff.dto.Conversation
 import ua.blink.whatsappgraff.dto.Media
 import ua.blink.whatsappgraff.dto.Message
 import ua.blink.whatsappgraff.dto.Response
-import ua.blink.whatsappgraff.dto.request.DocumentSendRequest
-import ua.blink.whatsappgraff.dto.request.MessageSendRequest
-import ua.blink.whatsappgraff.dto.request.PhotoSendRequest
-import ua.blink.whatsappgraff.dto.request.VoiceSendRequest
+import ua.blink.whatsappgraff.dto.request.*
+import ua.blink.whatsappgraff.dto.request.keyboard.ActionReplyKeyboard
 import ua.blink.whatsappgraff.dto.request.keyboard.InlineUrlReplyKeyboard
 import ua.blink.whatsappgraff.dto.request.keyboard.MarkupInlinedReplyKeyboard
-import ua.blink.whatsappgraff.dto.request.keyboard.MarkupReplyKeyboard
+import ua.blink.whatsappgraff.util.ImageType
 import java.net.URLDecoder
 import java.time.Duration
+import java.time.Instant
 import java.util.*
 
 class DefaultConversationApi(
@@ -58,6 +59,12 @@ class DefaultConversationApi(
 //                .forEach { name, values -> values.forEach { value -> log.info("$name: $value") } }
 //            Mono.just(clientResponse)
 //        })
+        .clientConnector(
+            ReactorClientHttpConnector(
+                HttpClient.create()
+                    .followRedirect(true) // Configure to follow redirects
+            )
+        )
         .build()
 
     override fun getUpdates(offset: String?, timeout: Long?): List<Message> {
@@ -108,8 +115,9 @@ class DefaultConversationApi(
     }
 
     override fun getFileByPath(filePath: String): ByteArray {
-        return fileRestTemplate.get()
-            .uri("/Services/$serviceSid/Media/$filePath")
+        return fileRestTemplate
+            .get()
+            .uri("/Services/$serviceSid/Media/$filePath/Content")
             .retrieve()
             .onStatus(
                 { status -> status.isError },
@@ -151,126 +159,7 @@ class DefaultConversationApi(
 
     override fun sendMessage(request: MessageSendRequest): Message {
         // Convert MessageSendRequest to form data
-        val formData: MultiValueMap<String, String> = LinkedMultiValueMap<String, String>().apply {
-            when {
-                request.buttons is MarkupInlinedReplyKeyboard && request.buttons.buttons.size <= 3 && request.buttons.buttons.all { it is InlineUrlReplyKeyboard && it.url == null } -> {
-                    val contentSid = when (request.buttons.buttons.size) {
-                        1 -> "HXf113a83d6951cca5f1583a4fb0d7a988"
-                        2 -> "HX0d3631717c0597db8e63307ac792726e"
-                        else -> "HX32ea167350eefa2e5a41a493a20a89bc"
-                    }
-
-                    val variables = buildString {
-                        append("{\"1\":\"${request.text}\"")
-                        request.buttons.buttons.forEachIndexed { index, button ->
-                            button as InlineUrlReplyKeyboard
-                            append(", \"${index + 2}\":\"${button.text.take(BUTTON_MAX_LENGTH)}\"")
-                        }
-                        append("}")
-                    }
-
-                    val attributes = request.buttons.buttons
-                        .withIndex()
-                        .joinToString(prefix = "{", postfix = "}") { (index, button) ->
-                            button as InlineUrlReplyKeyboard
-                            "\"${index + 2}\":\"${button.callbackData ?: ""}\""
-                        }
-
-                    add("ContentSid", contentSid)
-                    add("ContentVariables", variables.replace("\\r?\\n|\\r".toRegex(), "  "))
-                    add("Attributes", attributes)
-                    log.info("TEST 1\n\n$contentSid\n\n$variables\n\n$attributes")
-                }
-
-                request.buttons is MarkupInlinedReplyKeyboard && request.buttons.buttons.all { it is InlineUrlReplyKeyboard && it.url != null } -> {
-                    val text = buildString {
-                        append(request.text)
-                        append("\n\n")
-                        request.buttons.buttons.forEach { button ->
-                            button as InlineUrlReplyKeyboard
-                            append("${button.text}: ${button.url}")
-                        }
-                    }
-                    add("Body", text)
-                    log.info("TEST 2\n\n$text")
-                }
-
-                request.buttons is MarkupInlinedReplyKeyboard -> {
-                    val contentSid = when (request.buttons.buttons.size) {
-                        1 -> "HXf734048374f583cb6f860ba10776a3c8"
-                        2 -> "HX26a343ae652005995d8e6393666583ac"
-                        3 -> "HXc997d17edaa9d731a45e4d26fa5feb4b"
-                        4 -> "HX841de4bdaa941dedcf9a74dbcf8ed628"
-                        5 -> "HXcd1cc7e45a6ba157ac128a00417bb4ff"
-                        6 -> "HX41433473e50e8e01218f20f7a25a62de"
-                        7 -> "HX85cabf5052512c51efecd7711dbe8cee"
-                        else -> "HXed7e3db98e1de585f9f631458306fe21"
-                    }
-
-                    val variables = buildString {
-                        append("{\"1\":\"${request.text}\"")
-                        append(", \"2\":\"Choose action\"")
-                        request.buttons.buttons.forEachIndexed { index, button ->
-                            button as InlineUrlReplyKeyboard
-                            append(", \"${index + 3}\":\"${button.text.take(LIST_ITEM_MAX_LENGTH)}\"")
-                        }
-                        append("}")
-                    }
-
-                    val attributes = request.buttons.buttons
-                        .withIndex()
-                        .joinToString(prefix = "{", postfix = "}") { (index, button) ->
-                            button as InlineUrlReplyKeyboard
-                            "\"${index + 3}\":\"${button.callbackData ?: ""}\""
-                        }
-
-                    add("ContentSid", contentSid)
-                    add("ContentVariables", variables.replace("\\r?\\n|\\r".toRegex(), "  "))
-                    add("Attributes", attributes)
-                    log.info("TEST 3\n\n$contentSid\n\n$variables\n\n$attributes")
-                }
-
-                request.buttons is MarkupReplyKeyboard -> {
-                    val contentSid = when (request.buttons.buttons.size) {
-                        1 -> "HXf734048374f583cb6f860ba10776a3c8"
-                        2 -> "HX26a343ae652005995d8e6393666583ac"
-                        3 -> "HXc997d17edaa9d731a45e4d26fa5feb4b"
-                        4 -> "HX841de4bdaa941dedcf9a74dbcf8ed628"
-                        5 -> "HXcd1cc7e45a6ba157ac128a00417bb4ff"
-                        6 -> "HX41433473e50e8e01218f20f7a25a62de"
-                        7 -> "HX85cabf5052512c51efecd7711dbe8cee"
-                        else -> "HXed7e3db98e1de585f9f631458306fe21"
-                    }
-
-                    val variables = buildString {
-                        append("{\"1\":\"${request.text}\"")
-                        append(", \"2\":\"Choose action\"")
-                        request.buttons.buttons.forEachIndexed { index, button ->
-                            button as InlineUrlReplyKeyboard
-                            append(", \"${index + 3}\":\"${button.text.take(LIST_ITEM_MAX_LENGTH)}\"")
-                        }
-                        append("}")
-                    }
-
-                    val attributes = request.buttons.buttons
-                        .withIndex()
-                        .joinToString(prefix = "{", postfix = "}") { (index, button) ->
-                            button as InlineUrlReplyKeyboard
-                            "\"${index + 3}\":\"${button.callbackData ?: ""}\""
-                        }
-
-                    add("ContentSid", contentSid)
-                    add("ContentVariables", variables.replace("\\r?\\n|\\r".toRegex(), "  "))
-                    add("Attributes", attributes)
-                    log.info("TEST 4\n\n$contentSid\n\n$variables\n\n$attributes")
-                }
-
-                else -> {
-                    add("Body", request.text)
-                    log.info("TEST 5\n\n${request.text}")
-                }
-            }
-        }
+        val formData = formMessageData(request)
 
         return restTemplate
             .post()
@@ -287,6 +176,114 @@ class DefaultConversationApi(
             .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
             .get()
+    }
+
+    private fun formMessageData(request: MessageSendRequest): MultiValueMap<String, String> {
+        return LinkedMultiValueMap<String, String>().apply {
+            when (request.buttons) {
+                is MarkupInlinedReplyKeyboard ->
+                    when {
+                        request.buttons.buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } -> {
+                            val actionButton =
+                                request.buttons.buttons.firstOrNull { it is ActionReplyKeyboard } as? ActionReplyKeyboard
+                            val buttons = request.buttons.buttons.let { buttons ->
+                                actionButton?.let { buttons.minusElement(it) } ?: buttons
+                            }
+                            val text = buildString {
+                                append(request.text)
+                                append("\n\n")
+                                buttons.forEach { button ->
+                                    button as InlineUrlReplyKeyboard
+                                    append("${button.text}: ${button.url}")
+                                }
+                            }
+                            add("Body", text)
+                            log.info("TEST 2\n\n$text")
+                        }
+
+                        request.buttons.buttons.size <= 3 && request !is MarkdownMessage -> {
+                            val actionButton =
+                                request.buttons.buttons.firstOrNull { it is ActionReplyKeyboard } as? ActionReplyKeyboard
+                            val buttons = request.buttons.buttons.let { buttons ->
+                                actionButton?.let { buttons.minusElement(it) } ?: buttons
+                            }
+
+                            val variables = buildString {
+                                append("{\"1\":\"${request.text}\"")
+                                buttons.forEachIndexed { index, button ->
+                                    button as InlineUrlReplyKeyboard
+                                    append(", \"${index + 2}\":\"${button.text.take(BUTTON_MAX_LENGTH)}\"")
+                                }
+                                append("}")
+                            }
+
+                            val attributes = buttons
+                                .withIndex()
+                                .joinToString(prefix = "{", postfix = "}") { (index, button) ->
+                                    button as InlineUrlReplyKeyboard
+                                    "\"${index + 2}\":\"${button.callbackData ?: ""}\""
+                                }
+
+                            val contentSid = when (buttons.size) {
+                                1 -> "HXf113a83d6951cca5f1583a4fb0d7a988"
+                                2 -> "HX0d3631717c0597db8e63307ac792726e"
+                                else -> "HX32ea167350eefa2e5a41a493a20a89bc"
+                            }
+
+                            add("ContentSid", contentSid)
+                            add("ContentVariables", variables.replace("\\r?\\n|\\r".toRegex(), "  "))
+                            add("Attributes", attributes)
+                            log.info("TEST 1\n\n$contentSid\n\n$variables\n\n$attributes")
+                        }
+
+                        else -> {
+                            val actionButton =
+                                request.buttons.buttons.firstOrNull { it is ActionReplyKeyboard } as? ActionReplyKeyboard
+                            val buttons = request.buttons.buttons.let { buttons ->
+                                actionButton?.let { buttons.minusElement(it) } ?: buttons
+                            }
+
+                            val variables = buildString {
+                                append("{\"1\":\"${request.text}\"")
+                                append(", \"2\":\"${actionButton?.text?.take(BUTTON_MAX_LENGTH) ?: ""}\"")
+                                buttons.forEachIndexed { index, button ->
+                                    button as InlineUrlReplyKeyboard
+                                    append(", \"${index + 3}\":\"${button.text.take(LIST_ITEM_MAX_LENGTH)}\"")
+                                }
+                                append("}")
+                            }
+
+                            val attributes = buttons
+                                .withIndex()
+                                .joinToString(prefix = "{", postfix = "}") { (index, button) ->
+                                    button as InlineUrlReplyKeyboard
+                                    "\"${index + 3}\":\"${button.callbackData ?: ""}\""
+                                }
+
+                            val contentSid = when (buttons.size) {
+                                1 -> "HXf734048374f583cb6f860ba10776a3c8"
+                                2 -> "HX26a343ae652005995d8e6393666583ac"
+                                3 -> "HXc997d17edaa9d731a45e4d26fa5feb4b"
+                                4 -> "HX841de4bdaa941dedcf9a74dbcf8ed628"
+                                5 -> "HXcd1cc7e45a6ba157ac128a00417bb4ff"
+                                6 -> "HX41433473e50e8e01218f20f7a25a62de"
+                                7 -> "HX85cabf5052512c51efecd7711dbe8cee"
+                                else -> "HXed7e3db98e1de585f9f631458306fe21"
+                            }
+
+                            add("ContentSid", contentSid)
+                            add("ContentVariables", variables.replace("\\r?\\n|\\r".toRegex(), "  "))
+                            add("Attributes", attributes)
+                            log.info("TEST 3\n\n$contentSid\n\n$variables\n\n$attributes")
+                        }
+                    }
+
+                else -> {
+                    add("Body", request.text)
+                    log.info("TEST 5\n\n${request.text}")
+                }
+            }
+        }
     }
 
     override fun sendDocument(request: DocumentSendRequest): Message {
@@ -314,7 +311,10 @@ class DefaultConversationApi(
     }
 
     override fun sendPhoto(request: PhotoSendRequest): Message {
-        val mediaSid = uploadMedia("picture.png", request.photo, "image/png")
+        val imageType =
+            ImageType.fromByteArray(request.photo)
+        val mediaSid =
+            uploadMedia("picture${Instant.now().toEpochMilli()}.${imageType.extension}", request.photo, imageType.type)
 
         val formData: MultiValueMap<String, String> = LinkedMultiValueMap<String, String>().apply {
             add("Body", (request.caption ?: ""))

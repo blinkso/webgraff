@@ -8,7 +8,6 @@ import ua.blink.whatsappgraff.dsl.HandlerState
 import ua.blink.whatsappgraff.dsl.HandlersFactory
 import ua.blink.whatsappgraff.dto.Message
 import ua.blink.whatsappgraff.dto.request.*
-import ua.blink.whatsappgraff.dto.request.keyboard.InlineUrlReplyKeyboard
 import ua.blink.whatsappgraff.exception.CancelException
 import ua.blink.whatsappgraff.exception.FinishException
 import ua.blink.whatsappgraff.exception.ValidationException
@@ -61,13 +60,7 @@ class HandlersFilter(
 
             clearState(message.chatId)
             val locale = Locale(DEFAULT_LOCALE.toLanguageTag())
-            MarkdownInlinedButtonsMessage(
-                "telegram_something_went_wrong".localized(locale),
-                InlineUrlReplyKeyboard(
-                    text = "telegram_cancel".localized(locale),
-                    callbackData = "telegram_cancel".localized(locale)
-                )
-            )
+            MarkdownMessage("telegram_something_went_wrong".localized(locale))
         }
 
         sendResponse(message.chatId, response)
