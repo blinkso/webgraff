@@ -1,5 +1,5 @@
-include("telegraff-core")
-include("telegraff-autoconfigure")
-include("telegraff-starter")
+include("whatsappgraff-core")
+include("whatsappgraff-autoconfigure")
+include("whatsappgraff-starter")
 
-rootProject.name = "telegraff"
+rootProject.name = "whatsappgraff"
