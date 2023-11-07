@@ -33,6 +33,13 @@ class PropertiesValidator : Validator {
             )
         }
 
+        if (properties.buttonTemplate.isEmpty()) {
+            errors.rejectValue(
+                "buttonTemplate", "buttonTemplate.null",
+                "Button templates must not be null!"
+            )
+        }
+
         if (properties.handlersPath.isEmpty()) {
             errors.rejectValue(
                 "handlersPath", "handlersPath.null",

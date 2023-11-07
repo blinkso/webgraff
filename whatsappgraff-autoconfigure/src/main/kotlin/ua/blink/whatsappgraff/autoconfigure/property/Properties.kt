@@ -24,6 +24,16 @@ class Properties {
     var serviceSid: String = ""
 
     /**
+     * Button templates up to three buttons
+     */
+    var buttonTemplate: List<String> = listOf()
+
+    /**
+     * List templates up to three buttons
+     */
+    var listTemplate: List<String> = listOf()
+
+    /**
      * WhatsApp updates mode.
      */
     var mode = WhatsAppMode.POLLING

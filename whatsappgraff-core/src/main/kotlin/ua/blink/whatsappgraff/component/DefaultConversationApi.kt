@@ -31,7 +31,9 @@ import java.util.*
 class DefaultConversationApi(
     accessKey: String,
     accountSid: String,
-    private val serviceSid: String
+    private val serviceSid: String,
+    private val buttonTemplate: List<String>,
+    private val listTemplate: List<String>
 ) : ConversationApi {
 
     private val restTemplate = WebClient.builder()
@@ -198,7 +200,7 @@ class DefaultConversationApi(
                                 }
                             }
                             add("Body", text)
-                            log.info("TEST 2\n\n$text")
+                            log.info("request.buttons.buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null }: \n\n$text")
                         }
 
                         request.buttons.buttons.size <= 3 && request !is MarkdownMessage -> {
@@ -224,16 +226,12 @@ class DefaultConversationApi(
                                     "\"${index + 2}\":\"${button.callbackData ?: ""}\""
                                 }
 
-                            val contentSid = when (buttons.size) {
-                                1 -> "HXf113a83d6951cca5f1583a4fb0d7a988"
-                                2 -> "HX0d3631717c0597db8e63307ac792726e"
-                                else -> "HX32ea167350eefa2e5a41a493a20a89bc"
-                            }
+                            val contentSid = buttonTemplate[buttons.size.minus(1)]
 
                             add("ContentSid", contentSid)
                             add("ContentVariables", variables.replace("\\r?\\n|\\r".toRegex(), "  "))
                             add("Attributes", attributes)
-                            log.info("TEST 1\n\n$contentSid\n\n$variables\n\n$attributes")
+                            log.info("request.buttons.buttons.size <= 3 && request !is MarkdownMessage: \n\n$contentSid\n\n$variables\n\n$attributes")
                         }
 
                         else -> {
@@ -260,27 +258,18 @@ class DefaultConversationApi(
                                     "\"${index + 3}\":\"${button.callbackData ?: ""}\""
                                 }
 
-                            val contentSid = when (buttons.size) {
-                                1 -> "HXf734048374f583cb6f860ba10776a3c8"
-                                2 -> "HX26a343ae652005995d8e6393666583ac"
-                                3 -> "HXc997d17edaa9d731a45e4d26fa5feb4b"
-                                4 -> "HX841de4bdaa941dedcf9a74dbcf8ed628"
-                                5 -> "HXcd1cc7e45a6ba157ac128a00417bb4ff"
-                                6 -> "HX41433473e50e8e01218f20f7a25a62de"
-                                7 -> "HX85cabf5052512c51efecd7711dbe8cee"
-                                else -> "HXed7e3db98e1de585f9f631458306fe21"
-                            }
+                            val contentSid = listTemplate[buttons.size.minus(1)]
 
                             add("ContentSid", contentSid)
                             add("ContentVariables", variables.replace("\\r?\\n|\\r".toRegex(), "  "))
                             add("Attributes", attributes)
-                            log.info("TEST 3\n\n$contentSid\n\n$variables\n\n$attributes")
+                            log.info("else: \n\n$contentSid\n\n$variables\n\n$attributes")
                         }
                     }
 
                 else -> {
                     add("Body", request.text)
-                    log.info("TEST 5\n\n${request.text}")
+                    log.info("else: \n\n${request.text}")
                 }
             }
         }
