@@ -132,17 +132,17 @@ class DefaultConversationApi(
     }
 
     override fun setWebhook(url: String) {
-        val params = hashMapOf(
-            "Configuration.Url" to url,
-            "Configuration.Method" to "POST",
-            "Configuration.Filters" to listOf("onMessageAdded"),
-            "Target" to "webhook"
-        )
+        val formData: MultiValueMap<String, String> = LinkedMultiValueMap<String, String>().apply {
+            add("PostWebhookUrl", url)
+            add("Method", "POST")
+            add("Filters", "onMessageAdded")
+        }
 
         restTemplate
             .post()
-            .uri("/Services/$serviceSid/Webhooks")
-            .body(BodyInserters.fromValue(params))
+            .uri("/Configuration/Webhooks")
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED) // Set content type to form urlencoded
+            .body(BodyInserters.fromFormData(formData))
             .retrieve()
             .onStatus(
                 { status -> status.isError },
