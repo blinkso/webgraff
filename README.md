@@ -7,10 +7,10 @@
 ```
 whatsapp.access-key=                  # api key
 whatsapp.account-sid=                 # account sid
+whatsapp.service-sid=                 # messaging service sid
 whatsapp.mode=                        # polling (default), webhook
 whatsapp.webhook-base-url=            # required for webhook mode
 whatsapp.webhook-endpoint-url=        # optional
-whatsapp.payment-provider=            # payment provider key
 ```
 
 ## Usage
