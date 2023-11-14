@@ -63,20 +63,6 @@ class TelegraffServletWebConfiguration(@Qualifier("whatsappProperties") val prop
         conversationApi: ConversationApi,
         publisher: ApplicationEventPublisher
     ): WebhookClient {
-        // TODO: Reconfigure with one of the following approaches
-        /*
-        @Bean(name = ["/ruslanys"])
-        fun ruslanController(): Controller {
-            val aa = RequestMappingHandlerAdapter()
-            val bb = RequestMappingHandlerMapping()
-            return Controller { request, response ->
-                response.writer.print("ok")
-
-                ModelAndView("index")
-                // null
-            }
-        }
-        */
         return WebhookClient(conversationApi, publisher, properties.getWebhookUrl())
     }
 

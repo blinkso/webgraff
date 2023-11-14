@@ -10,7 +10,7 @@ data class Photo(
     val filename: String?,
 
     @JsonProperty("size")
-    val size: Int,
+    val size: Long,
 
     @JsonProperty("content_type")
     val contentType: String,

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import ua.blink.whatsappgraff.component.ConversationApi
 import ua.blink.whatsappgraff.dto.Message
+import ua.blink.whatsappgraff.dto.Update
 import ua.blink.whatsappgraff.event.UpdateEvent
 
 @RestController
@@ -38,8 +39,8 @@ class WebhookClient(
     }
 
     @RequestMapping("#{whatsappProperties.getWebhookEndpointUrl()}")
-    fun update(@RequestBody update: Message): ResponseEntity<String> {
-        onUpdate(update)
+    fun update(@RequestBody update: Update): ResponseEntity<String> {
+        onUpdate(update.getMessage())
         return ResponseEntity.ok("ok")
     }
 
