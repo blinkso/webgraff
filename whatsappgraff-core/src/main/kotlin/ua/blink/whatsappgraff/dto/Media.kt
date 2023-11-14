@@ -22,7 +22,7 @@ data class Media(
     val links: Map<String?, String?>,
 
     @JsonProperty("size")
-    val size: Int?,
+    val size: Long?,
 
     @JsonProperty("content_type")
     val contentType: String?,
