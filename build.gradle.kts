@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "ua.blink.whatsappgraff"
-version = "1.0.1"
+version = "1.0.2"
 
 allprojects {
     repositories {

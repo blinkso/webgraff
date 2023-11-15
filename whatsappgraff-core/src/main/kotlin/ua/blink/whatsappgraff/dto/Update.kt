@@ -1,6 +1,8 @@
 package ua.blink.whatsappgraff.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
 
 data class Update(
     @JsonProperty("MessagingServiceSid")
@@ -13,7 +15,7 @@ data class Update(
     val attributes: String?,
 
     @JsonProperty("Media")
-    val media: List<UpdateMedia>?,
+    val media: String?,
 
     @JsonProperty("DateCreated")
     val dateCreated: String?,
@@ -49,7 +51,15 @@ data class Update(
     val conversationSid: String?
 ) {
 
-    fun getMessage(): Message {
+    fun getMessage(objectMapper: ObjectMapper): Message {
+        val mediaList: List<UpdateMedia>? =
+            media?.let {
+                runCatching {
+                    objectMapper.readValue(
+                        media,
+                        object : TypeReference<List<UpdateMedia>>() {})
+                }.getOrNull()
+            }
         return Message(
             sid = messageSid ?: "",
             accountSid = accountSid ?: "",
@@ -57,7 +67,7 @@ data class Update(
             chatId = conversationSid ?: "",
             user = author,
             date = dateCreated ?: "",
-            photo = media?.map {
+            photo = mediaList?.map {
                 Photo(
                     sid = it.sid ?: "",
                     filename = it.filename ?: "",

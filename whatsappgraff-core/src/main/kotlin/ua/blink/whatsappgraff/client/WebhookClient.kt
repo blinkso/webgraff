@@ -1,5 +1,6 @@
 package ua.blink.whatsappgraff.client
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
 import org.slf4j.LoggerFactory
@@ -15,9 +16,10 @@ import ua.blink.whatsappgraff.event.UpdateEvent
 
 @RestController
 class WebhookClient(
+    private val webhookUrl: String,
     private val conversationApi: ConversationApi,
     private val publisher: ApplicationEventPublisher,
-    private val webhookUrl: String
+    private val objectMapper: ObjectMapper
 ) : Client {
 
     @PostConstruct
@@ -40,7 +42,7 @@ class WebhookClient(
 
     @RequestMapping("#{whatsappProperties.getWebhookEndpointUrl()}")
     fun update(@RequestBody update: Update): ResponseEntity<String> {
-        onUpdate(update.getMessage())
+        onUpdate(update.getMessage(objectMapper))
         return ResponseEntity.ok("ok")
     }
 
