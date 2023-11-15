@@ -1,5 +1,8 @@
 package ua.blink.whatsappgraff.autoconfigure
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -9,6 +12,7 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.support.GenericApplicationContext
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 import ua.blink.whatsappgraff.autoconfigure.property.Properties
 import ua.blink.whatsappgraff.client.Client
 import ua.blink.whatsappgraff.client.PollingClient
@@ -27,6 +31,14 @@ import ua.blink.whatsappgraff.filter.*
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @ConditionalOnClass(PollingClient::class, WebhookClient::class)
 class TelegraffServletWebConfiguration(@Qualifier("whatsappProperties") val properties: Properties) {
+
+    @Bean
+    fun objectMapper(): ObjectMapper {
+        return Jackson2ObjectMapperBuilder()
+            .modulesToInstall(KotlinModule.Builder().build())
+            .build<ObjectMapper>()
+            .apply { configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false) }
+    }
 
     @Bean
     @ConditionalOnMissingBean(ConversationApi::class)
@@ -53,17 +65,23 @@ class TelegraffServletWebConfiguration(@Qualifier("whatsappProperties") val prop
         conversationApi: ConversationApi,
         publisher: ApplicationEventPublisher
     ): PollingClient {
-        return PollingClient(conversationApi, publisher)
+        return PollingClient(conversationApi = conversationApi, publisher = publisher)
     }
 
     @Bean
     @ConditionalOnMissingBean(Client::class)
     @ConditionalOnProperty(name = ["whatsapp.mode"], havingValue = "webhook")
     fun webhookClient(
+        objectMapper: ObjectMapper,
         conversationApi: ConversationApi,
         publisher: ApplicationEventPublisher
     ): WebhookClient {
-        return WebhookClient(conversationApi, publisher, properties.getWebhookUrl())
+        return WebhookClient(
+            webhookUrl = properties.getWebhookUrl(),
+            conversationApi = conversationApi,
+            publisher = publisher,
+            objectMapper = objectMapper
+        )
     }
 
     // endregion
@@ -71,7 +89,7 @@ class TelegraffServletWebConfiguration(@Qualifier("whatsappProperties") val prop
     @Bean
     @ConditionalOnMissingBean(HandlersFactory::class)
     fun handlersFactory(context: GenericApplicationContext): DefaultHandlersFactory {
-        return DefaultHandlersFactory(context, properties.handlersPath)
+        return DefaultHandlersFactory(handlersPath = properties.handlersPath, context = context)
     }
 
     // region Filters
@@ -88,6 +106,6 @@ class TelegraffServletWebConfiguration(@Qualifier("whatsappProperties") val prop
         conversationApi: ConversationApi,
         handlersFactory: HandlersFactory
     ): HandlersFilter {
-        return HandlersFilter(conversationApi, handlersFactory)
+        return HandlersFilter(conversationApi = conversationApi, handlersFactory = handlersFactory)
     }
 }

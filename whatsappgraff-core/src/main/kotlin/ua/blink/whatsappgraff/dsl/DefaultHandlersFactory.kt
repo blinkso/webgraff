@@ -16,8 +16,8 @@ import kotlin.coroutines.CoroutineContext
 
 @Component
 class DefaultHandlersFactory(
+    handlersPath: String,
     private val context: GenericApplicationContext,
-    handlersPath: String
 ) : HandlersFactory, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
