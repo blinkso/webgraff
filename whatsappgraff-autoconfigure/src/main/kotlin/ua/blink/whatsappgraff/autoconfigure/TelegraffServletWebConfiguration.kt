@@ -19,6 +19,8 @@ import ua.blink.whatsappgraff.client.PollingClient
 import ua.blink.whatsappgraff.client.WebhookClient
 import ua.blink.whatsappgraff.component.ConversationApi
 import ua.blink.whatsappgraff.component.DefaultConversationApi
+import ua.blink.whatsappgraff.dsl.ButtonsFactory
+import ua.blink.whatsappgraff.dsl.DefaultButtonsFactory
 import ua.blink.whatsappgraff.dsl.DefaultHandlersFactory
 import ua.blink.whatsappgraff.dsl.HandlersFactory
 import ua.blink.whatsappgraff.filter.*
@@ -101,11 +103,24 @@ class TelegraffServletWebConfiguration(@Qualifier("whatsappProperties") val prop
     }
 
     @Bean
+    @ConditionalOnMissingBean(ButtonsFactory::class)
+    fun buttonsFactory(
+        conversationApi: ConversationApi,
+    ): DefaultButtonsFactory {
+        return DefaultButtonsFactory()
+    }
+
+    @Bean
     @ConditionalOnMissingBean(HandlersFilter::class)
     fun handlersFilter(
         conversationApi: ConversationApi,
+        buttonsFactory: ButtonsFactory,
         handlersFactory: HandlersFactory
     ): HandlersFilter {
-        return HandlersFilter(conversationApi = conversationApi, handlersFactory = handlersFactory)
+        return HandlersFilter(
+            conversationApi = conversationApi,
+            buttonsFactory = buttonsFactory,
+            handlersFactory = handlersFactory
+        )
     }
 }

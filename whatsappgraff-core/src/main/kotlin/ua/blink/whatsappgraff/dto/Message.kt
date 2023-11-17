@@ -15,11 +15,14 @@ data class Message(
     @JsonProperty("conversation_sid")
     val chatId: String,
 
+    @JsonProperty("date_created")
+    val date: String,
+
     @JsonProperty("author")
     val user: String?,
 
-    @JsonProperty("date_created")
-    val date: String,
+    @JsonProperty("attributes")
+    val attributes: String?,
 
     @JsonProperty("media")
     val photo: List<Photo>?,

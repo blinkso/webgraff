@@ -66,6 +66,7 @@ data class Update(
             serviceSid = chatServiceSid ?: "",
             chatId = conversationSid ?: "",
             user = author,
+            attributes = attributes,
             date = dateCreated ?: "",
             photo = mediaList?.map {
                 Photo(

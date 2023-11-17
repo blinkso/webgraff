@@ -18,6 +18,8 @@ interface ConversationApi {
         return getUpdates(null)
     }
 
+    fun getMessages(chatId: String): List<Message>
+
     fun getFileByPath(filePath: String): ByteArray
 
     fun setWebhook(url: String)

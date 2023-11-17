@@ -18,10 +18,10 @@ import ua.blink.whatsappgraff.dto.Conversation
 import ua.blink.whatsappgraff.dto.Media
 import ua.blink.whatsappgraff.dto.Message
 import ua.blink.whatsappgraff.dto.Response
-import ua.blink.whatsappgraff.dto.request.*
-import ua.blink.whatsappgraff.dto.request.keyboard.ActionReplyKeyboard
-import ua.blink.whatsappgraff.dto.request.keyboard.InlineUrlReplyKeyboard
-import ua.blink.whatsappgraff.dto.request.keyboard.MarkupInlinedReplyKeyboard
+import ua.blink.whatsappgraff.dto.request.DocumentSendRequest
+import ua.blink.whatsappgraff.dto.request.MessageSendRequest
+import ua.blink.whatsappgraff.dto.request.PhotoSendRequest
+import ua.blink.whatsappgraff.dto.request.VoiceSendRequest
 import ua.blink.whatsappgraff.util.ImageType
 import java.net.URLDecoder
 import java.time.Duration
@@ -101,19 +101,24 @@ class DefaultConversationApi(
         val allMessages = mutableListOf<Message>()
 
         for (conversation in allConversations) {
-            val messagesResponse = restTemplate.get()
-                .uri("/Services/$serviceSid/Conversations/${conversation.chatId}/Messages?Page=0&PageSize=5&Order=desc")
-                .retrieve()
-                .onStatus(
-                    { status -> status.isError },
-                    { clientResponse -> clientResponse.handleError("getUpdates/Services/$serviceSid/Conversations/${conversation.chatId}/Messages($offset, $timeout)") }
-                )
-                .bodyToMono(Response::class.java)
-                .block(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS)) ?: break
-            allMessages.addAll(messagesResponse.messages?.reversed() ?: listOf())
+            allMessages.addAll(getMessages(conversation.chatId))
         }
 
         return allMessages.filter { it.user != "system" }
+    }
+
+    override fun getMessages(chatId: String): List<Message> {
+        val messagesResponse = restTemplate.get()
+            .uri("/Services/$serviceSid/Conversations/${chatId}/Messages?Page=0&PageSize=5&Order=desc")
+            .retrieve()
+            .onStatus(
+                { status -> status.isError },
+                { clientResponse -> clientResponse.handleError("getUpdates/Services/$serviceSid/Conversations/${chatId}/Messages") }
+            )
+            .bodyToMono(Response::class.java)
+            .block(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
+
+        return messagesResponse?.messages?.reversed() ?: listOf()
     }
 
     override fun getFileByPath(filePath: String): ByteArray {
@@ -140,7 +145,7 @@ class DefaultConversationApi(
 
         restTemplate
             .post()
-            .uri("/Configuration/Webhooks")
+            .uri("/Services/$serviceSid/Configuration/Webhooks")
             .contentType(MediaType.APPLICATION_FORM_URLENCODED) // Set content type to form urlencoded
             .body(BodyInserters.fromFormData(formData))
             .retrieve()
@@ -182,96 +187,20 @@ class DefaultConversationApi(
 
     private fun formMessageData(request: MessageSendRequest): MultiValueMap<String, String> {
         return LinkedMultiValueMap<String, String>().apply {
-            when (request.buttons) {
-                is MarkupInlinedReplyKeyboard ->
-                    when {
-                        request.buttons.buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } -> {
-                            val actionButton =
-                                request.buttons.buttons.firstOrNull { it is ActionReplyKeyboard } as? ActionReplyKeyboard
-                            val buttons = request.buttons.buttons.let { buttons ->
-                                actionButton?.let { buttons.minusElement(it) } ?: buttons
-                            }
-                            val text = buildString {
-                                append(request.text)
-                                append("\n\n")
-                                buttons.forEach { button ->
-                                    button as InlineUrlReplyKeyboard
-                                    append("${button.text}: ${button.url}")
-                                }
-                            }
-                            add("Body", text)
-                            log.info("request.buttons.buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null }: \n\n$text")
-                        }
-
-                        request.buttons.buttons.size <= 3 && request !is MarkdownMessage -> {
-                            val actionButton =
-                                request.buttons.buttons.firstOrNull { it is ActionReplyKeyboard } as? ActionReplyKeyboard
-                            val buttons = request.buttons.buttons.let { buttons ->
-                                actionButton?.let { buttons.minusElement(it) } ?: buttons
-                            }
-
-                            val variables = buildString {
-                                append("{\"1\":\"${request.text}\"")
-                                buttons.forEachIndexed { index, button ->
-                                    button as InlineUrlReplyKeyboard
-                                    append(", \"${index + 2}\":\"${button.text.take(BUTTON_MAX_LENGTH)}\"")
-                                }
-                                append("}")
-                            }
-
-                            val attributes = buttons
-                                .withIndex()
-                                .joinToString(prefix = "{", postfix = "}") { (index, button) ->
-                                    button as InlineUrlReplyKeyboard
-                                    "\"${index + 2}\":\"${button.callbackData ?: ""}\""
-                                }
-
-                            val contentSid = buttonTemplate[buttons.size.minus(1)]
-
-                            add("ContentSid", contentSid)
-                            add("ContentVariables", variables.replace("\\r?\\n|\\r".toRegex(), "  "))
-                            add("Attributes", attributes)
-                            log.info("request.buttons.buttons.size <= 3 && request !is MarkdownMessage: \n\n$contentSid\n\n$variables\n\n$attributes")
-                        }
-
-                        else -> {
-                            val actionButton =
-                                request.buttons.buttons.firstOrNull { it is ActionReplyKeyboard } as? ActionReplyKeyboard
-                            val buttons = request.buttons.buttons.let { buttons ->
-                                actionButton?.let { buttons.minusElement(it) } ?: buttons
-                            }
-
-                            val variables = buildString {
-                                append("{\"1\":\"${request.text}\"")
-                                append(", \"2\":\"${actionButton?.text?.take(BUTTON_MAX_LENGTH) ?: ""}\"")
-                                buttons.forEachIndexed { index, button ->
-                                    button as InlineUrlReplyKeyboard
-                                    append(", \"${index + 3}\":\"${button.text.take(LIST_ITEM_MAX_LENGTH)}\"")
-                                }
-                                append("}")
-                            }
-
-                            val attributes = buttons
-                                .withIndex()
-                                .joinToString(prefix = "{", postfix = "}") { (index, button) ->
-                                    button as InlineUrlReplyKeyboard
-                                    "\"${index + 3}\":\"${button.callbackData ?: ""}\""
-                                }
-
-                            val contentSid = listTemplate[buttons.size.minus(1)]
-
-                            add("ContentSid", contentSid)
-                            add("ContentVariables", variables.replace("\\r?\\n|\\r".toRegex(), "  "))
-                            add("Attributes", attributes)
-                            log.info("else: \n\n$contentSid\n\n$variables\n\n$attributes")
-                        }
-                    }
-
-                else -> {
-                    add("Body", request.text)
-                    log.info("else: \n\n${request.text}")
-                }
+            request.formBody()?.let { body ->
+                add("Body", body)
             }
+            request.formAttributes()?.let { attributes ->
+                add("Attributes", attributes)
+            }
+            request.formContent(
+                buttonTemplate = buttonTemplate,
+                listTemplate = listTemplate
+            )?.let { contentPair ->
+                add("ContentSid", contentPair.first)
+                add("ContentVariables", contentPair.second)
+            }
+            log.info("MessageBodyContent: $this")
         }
     }
 
@@ -381,8 +310,6 @@ class DefaultConversationApi(
     private companion object {
         private val log = LoggerFactory.getLogger(DefaultConversationApi::class.java)
         private const val REQUEST_TIMEOUT_SECONDS = 10L
-        private const val BUTTON_MAX_LENGTH = 20
-        private const val LIST_ITEM_MAX_LENGTH = 24
         private const val MIN_BACKOFF_SECONDS = 2L
         private const val MAX_RETRY_ATTEMPTS = 3L
     }
