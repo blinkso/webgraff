@@ -118,7 +118,7 @@ class HandlersFilter(
         return state.handler.process(state, state.answers)
     }
 
-    private fun sendResponse(chatId: String, response: SendRequest?) {
+    fun sendResponse(chatId: String, response: SendRequest?) {
         if (response != null && response.chatId == "") {
             response.chatId = chatId
         }
