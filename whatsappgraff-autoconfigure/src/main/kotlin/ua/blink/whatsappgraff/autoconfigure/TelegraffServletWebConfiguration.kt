@@ -123,4 +123,12 @@ class TelegraffServletWebConfiguration(@Qualifier("whatsappProperties") val prop
             handlersFactory = handlersFactory
         )
     }
+
+    @Bean
+    @ConditionalOnMissingBean(AttributesFilter::class)
+    fun attributesFilter(
+        buttonsFactory: ButtonsFactory
+    ): AttributesFilter {
+        return AttributesFilter(buttonsFactory = buttonsFactory)
+    }
 }
