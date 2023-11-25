@@ -24,6 +24,7 @@ import ua.blink.whatsappgraff.dto.request.DocumentSendRequest
 import ua.blink.whatsappgraff.dto.request.MessageSendRequest
 import ua.blink.whatsappgraff.dto.request.PhotoSendRequest
 import ua.blink.whatsappgraff.dto.request.VoiceSendRequest
+import ua.blink.whatsappgraff.util.FileType
 import ua.blink.whatsappgraff.util.ImageType
 import java.net.URLDecoder
 import java.time.Duration
@@ -210,7 +211,10 @@ class DefaultConversationApi(
     }
 
     override fun sendDocument(request: DocumentSendRequest): Message {
-        val mediaSid = uploadMedia(request.name, request.document, "application/octet-stream")
+        val fileType =
+            FileType.fromByteArray(request.document)
+        val mediaSid =
+            uploadMedia("${request.name}.${fileType.extension}", request.document, fileType.type)
 
         val formData: MultiValueMap<String, String> = LinkedMultiValueMap<String, String>().apply {
             add("Body", (request.caption ?: ""))
