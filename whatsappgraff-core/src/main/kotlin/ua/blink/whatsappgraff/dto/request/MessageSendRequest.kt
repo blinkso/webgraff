@@ -38,15 +38,16 @@ open class MessageSendRequest(
     fun formAttributes(): String? {
         return when (buttons) {
             is MarkupInlinedReplyKeyboard -> {
-                val actionButtons =
-                    buttons.buttons.filterIsInstance<ActionReplyKeyboard>().toSet()
-                val urlButtons =
-                    buttons.buttons.filterIsInstance<InlineUrlReplyKeyboard>().filter { it.url != null }.toSet()
-                val buttons =
-                    buttons.buttons
-                        .minus(actionButtons)
-                        .minus(urlButtons)
+                val actionButton =
+                    buttons.buttons.firstOrNull { it is ActionReplyKeyboard } as? ActionReplyKeyboard
+                val buttons = buttons.buttons.let { buttons ->
+                    actionButton?.let { buttons.minusElement(it) } ?: buttons
+                }
                 when {
+                    buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } -> {
+                        null
+                    }
+
                     buttons.size <= 3 && this !is MarkdownMessage -> {
                         val attributes = buttons
                             .withIndex()
@@ -80,20 +81,18 @@ open class MessageSendRequest(
     fun formBody(): String? {
         return when (buttons) {
             is MarkupInlinedReplyKeyboard -> {
-                val actionButtons =
-                    buttons.buttons.filterIsInstance<ActionReplyKeyboard>().toSet()
-                val urlButtons =
-                    buttons.buttons.filterIsInstance<InlineUrlReplyKeyboard>().filter { it.url != null }.toSet()
-                val buttons =
-                    buttons.buttons
-                        .minus(actionButtons)
-                        .minus(urlButtons)
+                val actionButton =
+                    buttons.buttons.firstOrNull { it is ActionReplyKeyboard } as? ActionReplyKeyboard
+                val buttons = buttons.buttons.let { buttons ->
+                    actionButton?.let { buttons.minusElement(it) } ?: buttons
+                }
                 when {
-                    urlButtons.isNotEmpty() -> {
+                    buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } -> {
                         val text = buildString {
                             append(text)
                             append("\n")
-                            urlButtons.forEach { button ->
+                            buttons.forEach { button ->
+                                button as InlineUrlReplyKeyboard
                                 append("\n${button.text}: ${button.url}")
                             }
                         }
@@ -123,15 +122,16 @@ open class MessageSendRequest(
     ): Pair<String, String>? {
         return when (buttons) {
             is MarkupInlinedReplyKeyboard -> {
-                val actionButtons =
-                    buttons.buttons.filterIsInstance<ActionReplyKeyboard>().toSet()
-                val urlButtons =
-                    buttons.buttons.filterIsInstance<InlineUrlReplyKeyboard>().filter { it.url != null }.toSet()
-                val buttons =
-                    buttons.buttons
-                        .minus(actionButtons)
-                        .minus(urlButtons)
+                val actionButton =
+                    buttons.buttons.firstOrNull { it is ActionReplyKeyboard } as? ActionReplyKeyboard
+                val buttons = buttons.buttons.let { buttons ->
+                    actionButton?.let { buttons.minusElement(it) } ?: buttons
+                }
                 when {
+                    buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } -> {
+                        null
+                    }
+
                     buttons.size <= 3 && this !is MarkdownMessage -> {
                         val variables = buildString {
                             append("{\"1\":\"${text}\"")
@@ -149,7 +149,7 @@ open class MessageSendRequest(
                     else -> {
                         val variables = buildString {
                             append("{\"1\":\"${text}\"")
-                            append(", \"2\":\"${actionButtons.firstOrNull()?.text?.take(BUTTON_MAX_LENGTH) ?: ""}\"")
+                            append(", \"2\":\"${actionButton?.text?.take(BUTTON_MAX_LENGTH) ?: ""}\"")
                             buttons.forEachIndexed { index, button ->
                                 button as InlineUrlReplyKeyboard
                                 append(", \"${index + 3}\":\"${button.text.take(LIST_ITEM_MAX_LENGTH)}\"")
