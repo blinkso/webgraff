@@ -134,7 +134,7 @@ open class MessageSendRequest(
                 when {
                     buttons.size <= 3 && this !is MarkdownMessage -> {
                         val variables = buildString {
-                            append("{\"1\":\"${formBody() ?: text}\"")
+                            append("{\"1\":\"${text}\"")
                             buttons.forEachIndexed { index, button ->
                                 button as InlineUrlReplyKeyboard
                                 append(", \"${index + 2}\":\"${button.text.take(BUTTON_MAX_LENGTH)}\"")
@@ -148,7 +148,7 @@ open class MessageSendRequest(
 
                     else -> {
                         val variables = buildString {
-                            append("{\"1\":\"${formBody() ?: text}\"")
+                            append("{\"1\":\"${text}\"")
                             append(", \"2\":\"${actionButtons.firstOrNull()?.text?.take(BUTTON_MAX_LENGTH) ?: ""}\"")
                             buttons.forEachIndexed { index, button ->
                                 button as InlineUrlReplyKeyboard
