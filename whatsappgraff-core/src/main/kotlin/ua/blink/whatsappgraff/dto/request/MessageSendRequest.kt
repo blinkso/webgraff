@@ -48,6 +48,17 @@ open class MessageSendRequest(
                         null
                     }
 
+                    this is MarkdownTemplateMessage -> {
+                        val attributes = buttons
+                            .withIndex()
+                            .joinToString(prefix = "{", postfix = "}") { (index, button) ->
+                                button as InlineUrlReplyKeyboard
+                                "\"${index + 1}\":\"${button.callbackData ?: ""}\""
+                            }
+
+                        attributes
+                    }
+
                     buttons.size <= 3 && this !is MarkdownMessage -> {
                         val attributes = buttons
                             .withIndex()
@@ -130,6 +141,19 @@ open class MessageSendRequest(
                 when {
                     buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } -> {
                         null
+                    }
+
+                    this is MarkdownTemplateMessage -> {
+                        val variables = buildString {
+                            append("{")
+                            buttons.forEachIndexed { index, button ->
+                                button as InlineUrlReplyKeyboard
+                                append("\"${index + 1}\":\"${button.text}\"")
+                            }
+                            append("}")
+                        }
+
+                        contentSid to variables.replace("\\r?\\n|\\r".toRegex(), "  ")
                     }
 
                     buttons.size <= 3 && this !is MarkdownMessage -> {

@@ -126,7 +126,10 @@ class HandlersFilter(
         when (response) {
             is MessageSendRequest ->
                 conversationApi.sendMessage(response).also {
-                    if (response.buttons is MarkupInlinedReplyKeyboard && response !is MarkdownMessage) {
+                    if (response.buttons is MarkupInlinedReplyKeyboard &&
+                        response !is MarkdownMessage &&
+                        response !is MarkdownTemplateMessage
+                    ) {
                         buttonsFactory.addButtonsRequest(response)
                     }
                 }
