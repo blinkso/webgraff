@@ -144,14 +144,12 @@ open class MessageSendRequest(
                     }
 
                     this is MarkdownTemplateMessage -> {
-                        val variables = buildString {
-                            append("{")
-                            buttons.forEachIndexed { index, button ->
+                        val variables = buttons
+                            .withIndex()
+                            .joinToString(prefix = "{", postfix = "}") { (index, button) ->
                                 button as InlineUrlReplyKeyboard
-                                append("\"${index + 1}\":\"${button.text}\"")
+                                "\"${index + 1}\":\"${button.text}\""
                             }
-                            append("}")
-                        }
 
                         contentSid to variables.replace("\\r?\\n|\\r".toRegex(), "  ")
                     }
