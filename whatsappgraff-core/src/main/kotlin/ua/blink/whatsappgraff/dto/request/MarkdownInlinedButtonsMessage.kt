@@ -7,17 +7,18 @@ class MarkdownInlinedButtonsMessage(
     text: String,
     vararg inlines: InlineUrlReplyKeyboard,
     chatId: String = "",
+    to: String = "",
     chooseActionButton: String? = null
-) :
-    MessageSendRequest(
-        chatId = chatId,
-        text = text,
-        replyMarkup = if (inlines.isNotEmpty()) {
-            MarkupInlinedReplyKeyboard(
-                inlines = inlines.toList(),
-                chooseActionButton = chooseActionButton
-            )
-        } else {
-            null
-        }
-    )
+) : MessageSendRequest(
+    chatId = chatId,
+    to = to,
+    text = text,
+    replyMarkup = if (inlines.isNotEmpty()) {
+        MarkupInlinedReplyKeyboard(
+            inlines = inlines.toList(),
+            chooseActionButton = chooseActionButton
+        )
+    } else {
+        null
+    }
+)

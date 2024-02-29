@@ -6,11 +6,13 @@ import ua.blink.whatsappgraff.dto.request.keyboard.MarkupInlinedReplyKeyboard
 class MarkdownTemplateMessage(
     val contentSid: String,
     vararg variables: String,
-    chatId: String = ""
+    chatId: String = "",
+    to: String = ""
 ) : MessageSendRequest(
-    chatId,
-    contentSid,
-    if (variables.isNotEmpty()) {
+    chatId = chatId,
+    to = to,
+    text = contentSid,
+    replyMarkup = if (variables.isNotEmpty()) {
         val inlines = variables.map { reply ->
             InlineUrlReplyKeyboard(
                 text = reply,
