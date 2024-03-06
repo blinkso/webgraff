@@ -15,7 +15,6 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import reactor.netty.http.client.HttpClient
-import reactor.util.retry.Retry
 import ua.blink.whatsappgraff.dto.Conversation
 import ua.blink.whatsappgraff.dto.Media
 import ua.blink.whatsappgraff.dto.Message
@@ -150,7 +149,6 @@ class DefaultConversationApi(
                 { clientResponse -> clientResponse.handleError("getFileByPath($filePath)") }
             )
             .bodyToMono(object : ParameterizedTypeReference<ByteArray>() {})
-            .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
             .get()
     }
@@ -174,7 +172,6 @@ class DefaultConversationApi(
             )
             .bodyToMono(object : ParameterizedTypeReference<String>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
-            .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
             .get()
     }
@@ -200,7 +197,6 @@ class DefaultConversationApi(
             )
             .bodyToMono(object : ParameterizedTypeReference<Message>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
-            .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
             .get()
     }
@@ -251,7 +247,6 @@ class DefaultConversationApi(
                 { clientResponse -> clientResponse.handleError("sendDocument($request)") }
             )
             .bodyToMono(object : ParameterizedTypeReference<Message>() {})
-            .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
             .get()
     }
@@ -278,7 +273,6 @@ class DefaultConversationApi(
                 { clientResponse -> clientResponse.handleError("sendPhoto($request)") }
             )
             .bodyToMono(object : ParameterizedTypeReference<Message>() {})
-            .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
             .get()
     }
@@ -302,7 +296,6 @@ class DefaultConversationApi(
                 { clientResponse -> clientResponse.handleError("sendVoice($request)") }
             )
             .bodyToMono(object : ParameterizedTypeReference<Message>() {})
-            .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(MIN_BACKOFF_SECONDS)))
             .toFuture()
             .get()
     }
@@ -338,7 +331,5 @@ class DefaultConversationApi(
     private companion object {
         private val log = LoggerFactory.getLogger(DefaultConversationApi::class.java)
         private const val REQUEST_TIMEOUT_SECONDS = 10L
-        private const val MIN_BACKOFF_SECONDS = 2L
-        private const val MAX_RETRY_ATTEMPTS = 3L
     }
 }
