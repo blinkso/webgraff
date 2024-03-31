@@ -46,10 +46,6 @@ open class MessageSendRequest(
                     actionButton?.let { buttons.minusElement(it) } ?: buttons
                 }
                 when {
-                    buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } -> {
-                        null
-                    }
-
                     this is MarkdownTemplateMessage -> {
                         val attributes = buttons
                             .withIndex()
@@ -59,6 +55,21 @@ open class MessageSendRequest(
                             }
 
                         attributes
+                    }
+
+                    this is MarkdownInlinedButtonsTemplateMessage -> {
+                        val attributes = buttons
+                            .withIndex()
+                            .joinToString(prefix = "{", postfix = "}") { (index, button) ->
+                                button as InlineUrlReplyKeyboard
+                                "\"${index + 1}\":\"${button.url ?: ""}\""
+                            }
+
+                        attributes
+                    }
+
+                    buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } -> {
+                        null
                     }
 
                     buttons.size <= 3 && this !is MarkdownMessage -> {
@@ -100,7 +111,7 @@ open class MessageSendRequest(
                     actionButton?.let { buttons.minusElement(it) } ?: buttons
                 }
                 when {
-                    buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } -> {
+                    buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } && this !is MarkdownInlinedButtonsTemplateMessage -> {
                         val text = buildString {
                             append(text)
                             append("\n")
@@ -141,10 +152,6 @@ open class MessageSendRequest(
                     actionButton?.let { buttons.minusElement(it) } ?: buttons
                 }
                 when {
-                    buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } -> {
-                        null
-                    }
-
                     this is MarkdownTemplateMessage -> {
                         val variables = buttons
                             .withIndex()
@@ -154,6 +161,21 @@ open class MessageSendRequest(
                             }
 
                         contentSid to variables.replace("\\r?\\n|\\r".toRegex(), "  ")
+                    }
+
+                    this is MarkdownInlinedButtonsTemplateMessage -> {
+                        val variables = buttons
+                            .withIndex()
+                            .joinToString(prefix = "{", postfix = "}") { (index, button) ->
+                                button as InlineUrlReplyKeyboard
+                                "\"${index + 1}\":\"${button.text}\""
+                            }
+
+                        contentSid to variables.replace("\\r?\\n|\\r".toRegex(), "  ")
+                    }
+
+                    buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } -> {
+                        null
                     }
 
                     buttons.size <= 3 && this !is MarkdownMessage -> {
