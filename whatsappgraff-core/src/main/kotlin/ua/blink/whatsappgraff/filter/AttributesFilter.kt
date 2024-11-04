@@ -16,19 +16,21 @@ class AttributesFilter(
 ) : Filter {
 
     override suspend fun handleMessage(message: Message, chain: FilterChain) {
-        buttonsFactory.getButtonsRequest(message.chatId ?: "")?.let { buttonsRequest ->
-            val button =
-                (buttonsRequest.buttons as? MarkupInlinedReplyKeyboard)?.buttons?.firstOrNull {
-                    (it as? InlineUrlReplyKeyboard)?.text?.contains(
-                        message.text ?: "",
-                        ignoreCase = true
-                    ) == true
-                }
-            if ((button as? InlineUrlReplyKeyboard)?.callbackData != null) {
-                chain.doFilter(message.copy(text = button.callbackData))
-            } else {
-                chain.doFilter(message)
+        // Get all button requests for the chatId
+        val chatId = message.chatId ?: ""
+        val messageText = message.text ?: ""
+
+        // Check all button requests for matching buttons
+        buttonsFactory.getButtonsRequests(chatId).forEach { buttonsRequest ->
+            val button = (buttonsRequest.buttons as? MarkupInlinedReplyKeyboard)?.buttons?.firstOrNull {
+                (it as? InlineUrlReplyKeyboard)?.text?.contains(messageText, ignoreCase = true) == true
             }
-        } ?: chain.doFilter(message)
+
+            if ((button as? InlineUrlReplyKeyboard)?.callbackData != null) {
+                return chain.doFilter(message.copy(text = button.callbackData))
+            }
+        }
+
+        chain.doFilter(message)
     }
 }
