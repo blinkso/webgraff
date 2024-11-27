@@ -52,18 +52,6 @@ class DefaultConversationApi(
                 .build()
         )
         .build()
-    private val programmableRestTemplate = WebClient.builder()
-        .baseUrl("https://api.twilio.com/2010-04-01")
-        .defaultHeader(
-            HttpHeaders.AUTHORIZATION,
-            "Basic " + Base64.getEncoder().encodeToString("$accountSid:$accessKey".toByteArray())
-        )
-        .exchangeStrategies(
-            ExchangeStrategies.builder()
-                .codecs(this::configureCodecs)
-                .build()
-        )
-        .build()
     private val fileRestTemplate = WebClient.builder()
         .baseUrl("https://mcs.us1.twilio.com/v1")
         .defaultHeader(
@@ -183,11 +171,10 @@ class DefaultConversationApi(
     override fun sendMessage(request: MessageSendRequest): Message {
         // Convert MessageSendRequest to form data
         val formData = formMessageData(request)
-        val shouldShortenLinks = formData["ShortenUrls"]?.firstOrNull()?.toBooleanStrictOrNull() ?: false
 
-        return (if (shouldShortenLinks) programmableRestTemplate else restTemplate)
+        return restTemplate
             .post()
-            .uri(if (shouldShortenLinks) "/Accounts/$accountSid/Messages.json" else "/Services/$serviceSid/Conversations/${request.chatId}/Messages")
+            .uri("/Services/$serviceSid/Conversations/${request.chatId}/Messages")
             .contentType(MediaType.APPLICATION_FORM_URLENCODED) // Set content type to form urlencoded
             .body(BodyInserters.fromFormData(formData)) // Use form data
             .retrieve()
