@@ -12,10 +12,17 @@ class PropertiesValidator : Validator {
     override fun validate(target: Any, errors: Errors) {
         val properties = target as Properties
 
-        if (properties.accessKey.isEmpty()) {
+        if (properties.apiKeySid.isEmpty()) {
             errors.rejectValue(
-                "accessKey", "accessKey.null",
-                "Access Key must not be null!"
+                "apiKeySid", "apiKeySid.null",
+                "API Key SID must not be null!"
+            )
+        }
+
+        if (properties.apiKeySecret.isEmpty()) {
+            errors.rejectValue(
+                "apiKeySecret", "apiKeySecret.null",
+                "API Key Secret must not be null!"
             )
         }
 
@@ -33,17 +40,10 @@ class PropertiesValidator : Validator {
             )
         }
 
-        if (properties.messagingSid.isEmpty()) {
+        if (properties.flexFlowSid.isEmpty()) {
             errors.rejectValue(
-                "messagingSid", "messagingSid.null",
-                "Messaging SID must not be null!"
-            )
-        }
-
-        if (properties.buttonTemplate.isEmpty()) {
-            errors.rejectValue(
-                "buttonTemplate", "buttonTemplate.null",
-                "Button templates must not be null!"
+                "flexFlowSid", "flexFlowSid.null",
+                "Flex Flow SID must not be null!"
             )
         }
 
@@ -54,7 +54,7 @@ class PropertiesValidator : Validator {
             )
         }
 
-        if (properties.mode == WhatsAppMode.WEBHOOK) {
+        if (properties.mode == WebChatMode.WEBHOOK) {
             val webhookBaseUrl = properties.webhookBaseUrl
             if (webhookBaseUrl == null || webhookBaseUrl.isEmpty()) {
                 errors.rejectValue(
@@ -67,7 +67,6 @@ class PropertiesValidator : Validator {
                     "You have to set HTTPS protocol at Webhook base URL."
                 )
             }
-
         }
     }
 

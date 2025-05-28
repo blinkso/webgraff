@@ -113,7 +113,7 @@ subprojects {
                 pom {
                     val GITHUB_TELEGRAFF_URL: String by project
                     name.set("webgraff")
-                    description.set("Kotlin DSL for WhatsApp bot development")
+                    description.set("Kotlin DSL for WebChat bot development")
                     url.set(GITHUB_TELEGRAFF_URL)
                     licenses {
                         license {
