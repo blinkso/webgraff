@@ -25,4 +25,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
           GITHUB_USERNAME: ${{ secrets.USERNAME }}
-          GITHUB_TELEGRAFF_URL: ${{ secrets.GITHUB_PACKAGES_URL }}

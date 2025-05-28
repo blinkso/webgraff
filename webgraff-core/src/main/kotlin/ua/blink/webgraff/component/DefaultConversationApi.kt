@@ -335,16 +335,15 @@ class DefaultConversationApi(
     private fun generateToken(identity: String): String {
         log.info("Generating token for identity: {}", identity)
         
-        val chatGrant = ChatGrant.Builder()
-            .serviceSid(serviceSid)
-            .build()
-            
+        val chatGrant = ChatGrant()
+        chatGrant.serviceSid = serviceSid
+        
         val token = AccessToken.Builder(accountSid, apiKeySid, apiKeySecret)
             .identity(identity)
             .ttl(tokenTtl)
             .grant(chatGrant)
             .build()
-            
+        
         return token.toJwt()
     }
     
