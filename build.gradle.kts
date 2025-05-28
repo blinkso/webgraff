@@ -10,8 +10,8 @@ plugins {
     id("org.springframework.boot") version "3.0.5"
 }
 
-group = "ua.blink.whatsappgraff"
-version = "1.0.23"
+group = "ua.blink.webgraff"
+version = "1.0.0"
 
 allprojects {
     repositories {
@@ -41,6 +41,7 @@ subprojects {
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
         implementation("net.java.dev.jna:jna:5.11.0")
+        implementation("com.twilio.sdk:twilio:8.25.0")
     }
 
     configure<DependencyManagementExtension> {
@@ -111,7 +112,7 @@ subprojects {
 
                 pom {
                     val GITHUB_TELEGRAFF_URL: String by project
-                    name.set("whatsappgraff")
+                    name.set("webgraff")
                     description.set("Kotlin DSL for WhatsApp bot development")
                     url.set(GITHUB_TELEGRAFF_URL)
                     licenses {
