@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "ua.blink.webgraff"
-version = "1.0.0"
+version = "1.0.1"
 
 allprojects {
     repositories {
@@ -41,7 +41,6 @@ subprojects {
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
         implementation("net.java.dev.jna:jna:5.11.0")
-        implementation("com.twilio.sdk:twilio:8.25.0")
     }
 
     configure<DependencyManagementExtension> {

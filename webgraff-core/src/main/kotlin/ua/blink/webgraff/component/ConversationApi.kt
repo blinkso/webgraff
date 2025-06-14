@@ -39,8 +39,7 @@ interface ConversationApi {
      * Creates a new conversation for web chat.
      * 
      * @param identity The identity of the user
-     * @param attributes Optional attributes to associate with the conversation
      * @return The created conversation
      */
-    fun createConversation(identity: String, attributes: String? = null): Conversation
+    fun createConversation(identity: String): Conversation
 }

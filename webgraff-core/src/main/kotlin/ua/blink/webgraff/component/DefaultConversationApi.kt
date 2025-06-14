@@ -1,7 +1,5 @@
 package ua.blink.webgraff.component
 
-import com.twilio.jwt.accesstoken.AccessToken
-import com.twilio.jwt.accesstoken.ChatGrant
 import org.slf4j.LoggerFactory
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpHeaders
@@ -21,7 +19,6 @@ import ua.blink.webgraff.dto.Conversation
 import ua.blink.webgraff.dto.Media
 import ua.blink.webgraff.dto.Message
 import ua.blink.webgraff.dto.Response
-import ua.blink.webgraff.dto.WebChatTokenResponse
 import ua.blink.webgraff.dto.request.DocumentSendRequest
 import ua.blink.webgraff.dto.request.MessageSendRequest
 import ua.blink.webgraff.dto.request.PhotoSendRequest
@@ -35,14 +32,11 @@ import java.util.*
 
 
 class DefaultConversationApi(
-    private val apiKeySid: String,
-    private val apiKeySecret: String,
+    private val accessKey: String,
     private val accountSid: String,
     private val serviceSid: String,
-    private val flexFlowSid: String,
-    private val buttonTemplate: List<String>,
-    private val listTemplate: List<String>,
-    private val tokenTtl: Int
+    private val messagingSid: String,
+    private val contentTemplates: Map<String, String>
 ) : ConversationApi {
 
     private val log = LoggerFactory.getLogger(DefaultConversationApi::class.java)
@@ -52,7 +46,7 @@ class DefaultConversationApi(
         .baseUrl("https://conversations.twilio.com/v1")
         .defaultHeader(
             HttpHeaders.AUTHORIZATION,
-            "Basic " + Base64.getEncoder().encodeToString("$accountSid:$apiKeySecret".toByteArray())
+            "Basic " + Base64.getEncoder().encodeToString("$accountSid:$accessKey".toByteArray())
         )
         .exchangeStrategies(
             ExchangeStrategies.builder()
@@ -65,7 +59,7 @@ class DefaultConversationApi(
         .baseUrl("https://mcs.us1.twilio.com/v1")
         .defaultHeader(
             HttpHeaders.AUTHORIZATION,
-            "Basic " + Base64.getEncoder().encodeToString("$accountSid:$apiKeySecret".toByteArray())
+            "Basic " + Base64.getEncoder().encodeToString("$accountSid:$accessKey".toByteArray())
         )
         .exchangeStrategies(
             ExchangeStrategies.builder()
@@ -213,16 +207,14 @@ class DefaultConversationApi(
             request.formAttributes()?.let { attributes ->
                 add("Attributes", attributes)
             }
-            request.formContent(
-                buttonTemplate = buttonTemplate,
-                listTemplate = listTemplate
-            )?.let { contentPair ->
+            request.formContent(contentTemplates)?.let { contentPair ->
                 add("ContentSid", contentPair.first)
                 add("ContentVariables", contentPair.second)
             }
             request.formShortenUrls()?.let { shortenUrls ->
                 add("ShortenUrls", shortenUrls.toString())
             }
+            add("MessagingServiceSid", messagingSid)
             add("Author", "system") // Sends as the system user
             log.info("MessageBodyContent: $this")
         }
@@ -328,36 +320,11 @@ class DefaultConversationApi(
         return responseMedia?.sid ?: throw RuntimeException("Failed to upload media")
     }
     
-    /**
-     * Internal method to generate JWT tokens for Twilio API authentication.
-     * Used by the framework for server-side API calls.
-     */
-    private fun generateToken(identity: String): String {
-        log.info("Generating token for identity: {}", identity)
-        
-        val chatGrant = ChatGrant()
-        chatGrant.serviceSid = serviceSid
-        
-        val token = AccessToken.Builder(accountSid, apiKeySid, apiKeySecret)
-            .identity(identity)
-            .ttl(tokenTtl)
-            .grant(chatGrant)
-            .build()
-        
-        return token.toJwt()
-    }
-    
-    override fun createConversation(identity: String, attributes: String?): Conversation {
+    override fun createConversation(identity: String): Conversation {
         log.info("Creating conversation for identity: {}", identity)
-        
-        // Server-side token is still needed for API authentication
-        val token = generateToken(identity)
         
         val formData: MultiValueMap<String, String> = LinkedMultiValueMap<String, String>().apply {
             add("FriendlyName", "Conversation with $identity")
-            if (attributes != null) {
-                add("Attributes", attributes)
-            }
         }
         
         // Create the conversation
@@ -393,50 +360,6 @@ class DefaultConversationApi(
             .bodyToMono(Object::class.java)
             .block(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
         
-        // Create a task in Flex to route this conversation to an agent
-        createFlexTask(conversation.chatId, identity, attributes)
-        
         return conversation
-    }
-    
-    private fun createFlexTask(conversationSid: String, identity: String, attributes: String?) {
-        log.info("Creating Flex task for conversation: {}", conversationSid)
-        
-        val taskAttributes = """
-            {
-                "customerName": "$identity",
-                "channelType": "web",
-                "conversationSid": "$conversationSid",
-                "flexFlowSid": "$flexFlowSid"
-                ${attributes?.let { ", \"customAttributes\": $it" } ?: ""}
-            }
-        """.trimIndent()
-        
-        val formData: MultiValueMap<String, String> = LinkedMultiValueMap<String, String>().apply {
-            add("WorkflowSid", flexFlowSid)
-            add("TaskChannel", "chat")
-            add("Attributes", taskAttributes)
-        }
-        
-        val taskServiceUrl = "https://taskrouter.twilio.com/v1/Workspaces/"
-        
-        WebClient.builder()
-            .baseUrl(taskServiceUrl)
-            .defaultHeader(
-                HttpHeaders.AUTHORIZATION,
-                "Basic " + Base64.getEncoder().encodeToString("$accountSid:$apiKeySecret".toByteArray())
-            )
-            .build()
-            .post()
-            .uri("/<workspace_sid>/Tasks") // Replace with your Workspace SID in configuration
-            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-            .body(BodyInserters.fromFormData(formData))
-            .retrieve()
-            .onStatus(
-                { status -> status.isError },
-                { clientResponse -> clientResponse.handleError("createFlexTask($conversationSid)") }
-            )
-            .bodyToMono(Object::class.java)
-            .block(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
     }
 }

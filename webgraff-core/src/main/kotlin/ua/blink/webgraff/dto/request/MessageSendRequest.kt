@@ -140,10 +140,7 @@ open class MessageSendRequest(
         }
     }
 
-    fun formContent(
-        buttonTemplate: List<String>,
-        listTemplate: List<String>
-    ): Pair<String, String>? {
+    fun formContent(contentTemplates: Map<String, String>): Pair<String, String>? {
         return when (buttons) {
             is MarkupInlinedReplyKeyboard -> {
                 val actionButton =
@@ -188,7 +185,10 @@ open class MessageSendRequest(
                             append("}")
                         }
 
-                        val contentSid = buttonTemplate[buttons.size.minus(1)]
+                        val templateKey = "button_${buttons.size}"
+                        val contentSid = contentTemplates[templateKey] 
+                            ?: throw IllegalArgumentException("No content template found for key: $templateKey")
+                        
                         contentSid to variables.replace("\\r?\\n|\\r".toRegex(), "  ")
                     }
 
@@ -203,7 +203,10 @@ open class MessageSendRequest(
                             append("}")
                         }
 
-                        val contentSid = listTemplate[buttons.size.minus(1)]
+                        val templateKey = "list_${buttons.size}"
+                        val contentSid = contentTemplates[templateKey]
+                            ?: throw IllegalArgumentException("No content template found for key: $templateKey")
+                            
                         contentSid to variables.replace("\\r?\\n|\\r".toRegex(), "  ")
                     }
                 }

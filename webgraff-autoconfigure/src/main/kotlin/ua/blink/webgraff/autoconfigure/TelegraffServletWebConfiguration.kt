@@ -17,7 +17,7 @@ import ua.blink.webgraff.autoconfigure.property.Properties
 import ua.blink.webgraff.autoconfigure.property.WebChatMode
 import ua.blink.webgraff.client.Client
 import ua.blink.webgraff.client.PollingClient
-import ua.blink.webgraff.client.WebChatController
+import ua.blink.webgraff.client.WebhookClient
 import ua.blink.webgraff.component.ConversationApi
 import ua.blink.webgraff.component.DefaultConversationApi
 import ua.blink.webgraff.dsl.ButtonsFactory
@@ -32,7 +32,7 @@ import ua.blink.webgraff.filter.*
  */
 @Configuration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
-@ConditionalOnClass(PollingClient::class, WebChatController::class)
+@ConditionalOnClass(PollingClient::class, WebhookClient::class)
 class TelegraffServletWebConfiguration(@Qualifier("webChatProperties") val properties: Properties) {
 
     @Bean
@@ -47,14 +47,11 @@ class TelegraffServletWebConfiguration(@Qualifier("webChatProperties") val prope
     @ConditionalOnMissingBean(ConversationApi::class)
     fun api(): ConversationApi {
         return DefaultConversationApi(
-            apiKeySid = properties.apiKeySid,
-            apiKeySecret = properties.apiKeySecret,
+            accessKey = properties.accessKey,
             accountSid = properties.accountSid,
             serviceSid = properties.serviceSid,
-            flexFlowSid = properties.flexFlowSid,
-            buttonTemplate = properties.buttonTemplate,
-            listTemplate = properties.listTemplate,
-            tokenTtl = properties.tokenTtl
+            messagingSid = properties.messagingSid,
+            contentTemplates = properties.contentTemplates
         )
     }
 
@@ -76,15 +73,14 @@ class TelegraffServletWebConfiguration(@Qualifier("webChatProperties") val prope
 
     @Bean
     @ConditionalOnMissingBean(Client::class)
-    @ConditionalOnProperty(name = ["webchat.mode"], havingValue = "webhook", matchIfMissing = true)
-    fun webChatController(
+    @ConditionalOnProperty(name = ["webchat.mode"], havingValue = "webhook")
+    fun webhookClient(
         objectMapper: ObjectMapper,
         conversationApi: ConversationApi,
         publisher: ApplicationEventPublisher
-    ): WebChatController {
-        return WebChatController(
+    ): WebhookClient {
+        return WebhookClient(
             webhookUrl = properties.getWebhookUrl(),
-            flexFlowSid = properties.flexFlowSid,
             conversationApi = conversationApi,
             publisher = publisher,
             objectMapper = objectMapper

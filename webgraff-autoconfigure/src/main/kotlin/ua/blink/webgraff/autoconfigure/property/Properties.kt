@@ -9,14 +9,9 @@ import java.util.*
 class Properties {
 
     /**
-     * Twilio API Key SID.
+     * Twilio Access Key.
      */
-    var apiKeySid: String = ""
-
-    /**
-     * Twilio API Key Secret.
-     */
-    var apiKeySecret: String = ""
+    var accessKey: String = ""
 
     /**
      * Twilio Account SID.
@@ -29,19 +24,14 @@ class Properties {
     var serviceSid: String = ""
 
     /**
-     * Twilio Flex Flow SID.
+     * Twilio Messaging Service SID (optional).
      */
-    var flexFlowSid: String = ""
+    var messagingSid: String = ""
 
     /**
-     * Button templates up to three buttons
+     * Content templates for different layouts
      */
-    var buttonTemplate: List<String> = listOf()
-
-    /**
-     * List templates up to three buttons
-     */
-    var listTemplate: List<String> = listOf()
+    var contentTemplates: Map<String, String> = mapOf()
 
     /**
      * Web chat updates mode.
@@ -64,12 +54,6 @@ class Properties {
      * Path where handlers declaration stored.
      */
     var handlersPath = "handlers"
-
-    /**
-     * Token TTL in seconds.
-     * Default is 3600 seconds (1 hour).
-     */
-    var tokenTtl: Int = 3600
 
     /**
      * UnresolvedMessageFilter properties.

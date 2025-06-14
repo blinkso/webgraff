@@ -40,13 +40,6 @@ class PropertiesValidator : Validator {
             )
         }
 
-        if (properties.flexFlowSid.isEmpty()) {
-            errors.rejectValue(
-                "flexFlowSid", "flexFlowSid.null",
-                "Flex Flow SID must not be null!"
-            )
-        }
-
         if (properties.handlersPath.isEmpty()) {
             errors.rejectValue(
                 "handlersPath", "handlersPath.null",
