@@ -12,20 +12,6 @@ class PropertiesValidator : Validator {
     override fun validate(target: Any, errors: Errors) {
         val properties = target as Properties
 
-        if (properties.apiKeySid.isEmpty()) {
-            errors.rejectValue(
-                "apiKeySid", "apiKeySid.null",
-                "API Key SID must not be null!"
-            )
-        }
-
-        if (properties.apiKeySecret.isEmpty()) {
-            errors.rejectValue(
-                "apiKeySecret", "apiKeySecret.null",
-                "API Key Secret must not be null!"
-            )
-        }
-
         if (properties.accountSid.isEmpty()) {
             errors.rejectValue(
                 "accountSid", "accountSid.null",
