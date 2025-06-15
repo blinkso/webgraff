@@ -5,9 +5,11 @@ import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import ua.blink.webgraff.component.ConversationApi
 import ua.blink.webgraff.dto.Message
@@ -40,8 +42,30 @@ class WebhookClient(
         publisher.publishEvent(UpdateEvent(this, update))
     }
 
-    @RequestMapping("#{webChatProperties.getWebhookEndpointUrl()}")
-    fun update(@RequestBody update: Update): ResponseEntity<String> {
+    @RequestMapping(
+        value = ["#{webChatProperties.getWebhookEndpointUrl()}"], 
+        method = [RequestMethod.POST],
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
+    )
+    fun update(@RequestParam params: Map<String, String>): ResponseEntity<String> {
+        // Convert form parameters to Update object
+        val update = Update(
+            messagingServiceSid = params["MessagingServiceSid"],
+            eventType = params["EventType"],
+            attributes = params["Attributes"],
+            media = params["Media"],
+            dateCreated = params["DateCreated"],
+            index = params["Index"]?.toIntOrNull(),
+            chatServiceSid = params["ChatServiceSid"],
+            messageSid = params["MessageSid"],
+            accountSid = params["AccountSid"],
+            source = params["Source"],
+            retryCount = params["RetryCount"]?.toIntOrNull(),
+            author = params["Author"],
+            participantSid = params["ParticipantSid"],
+            body = params["Body"],
+            conversationSid = params["ConversationSid"]
+        )
         onUpdate(update.getMessage(objectMapper))
         return ResponseEntity.ok("ok")
     }
