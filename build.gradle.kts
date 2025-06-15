@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "ua.blink.webgraff"
-version = "1.0.12"
+version = "1.0.13"
 
 allprojects {
     repositories {

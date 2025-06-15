@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
@@ -42,54 +43,69 @@ class WebhookClient(
         publisher.publishEvent(UpdateEvent(this, update))
     }
 
+    @RequestMapping(value = ["#{webChatProperties.getWebhookEndpointUrl()}"])
+    fun update(@RequestBody params: Map<String, Any>): ResponseEntity<String> {
+        log.info("Received JSON webhook with parameters: ${params}")
+
+        // Convert JSON parameters to Update object
+        val update = Update(
+            messagingServiceSid = params["MessagingServiceSid"]?.toString(),
+            eventType = params["EventType"]?.toString(),
+            attributes = params["Attributes"]?.toString(),
+            media = params["Media"]?.toString(),
+            dateCreated = params["DateCreated"]?.toString(),
+            index = params["Index"]?.toString()?.toIntOrNull(),
+            chatServiceSid = params["ChatServiceSid"]?.toString(),
+            messageSid = params["MessageSid"]?.toString(),
+            accountSid = params["AccountSid"]?.toString(),
+            source = params["Source"]?.toString(),
+            retryCount = params["RetryCount"]?.toString()?.toIntOrNull(),
+            clientIdentity = params["ClientIdentity"]?.toString(),
+            author = params["Author"]?.toString(),
+            participantSid = params["ParticipantSid"]?.toString(),
+            body = params["Body"]?.toString(),
+            conversationSid = params["ConversationSid"]?.toString()
+        )
+
+        log.info("Created update object from JSON: {}", update)
+        val message = update.getMessage(objectMapper)
+        log.info("Converted to message object: {}", message)
+        onUpdate(message)
+        return ResponseEntity.ok("ok")
+    }
+
     @RequestMapping(
         value = ["#{webChatProperties.getWebhookEndpointUrl()}"],
         method = [RequestMethod.POST],
-        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
+        consumes = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun update(
-        @RequestParam(value = "MessagingServiceSid", required = false) messagingServiceSid: String?,
-        @RequestParam(value = "EventType", required = false) eventType: String?,
-        @RequestParam(value = "Attributes", required = false) attributes: String?,
-        @RequestParam(value = "Media", required = false) media: String?,
-        @RequestParam(value = "DateCreated", required = false) dateCreated: String?,
-        @RequestParam(value = "Index", required = false) index: String?,
-        @RequestParam(value = "ChatServiceSid", required = false) chatServiceSid: String?,
-        @RequestParam(value = "MessageSid", required = false) messageSid: String?,
-        @RequestParam(value = "AccountSid", required = false) accountSid: String?,
-        @RequestParam(value = "Source", required = false) source: String?,
-        @RequestParam(value = "ClientIdentity", required = false) clientIdentity: String?,
-        @RequestParam(value = "RetryCount", required = false) retryCount: String?,
-        @RequestParam(value = "Author", required = false) author: String?,
-        @RequestParam(value = "ParticipantSid", required = false) participantSid: String?,
-        @RequestParam(value = "Body", required = false) body: String?,
-        @RequestParam(value = "ConversationSid", required = false) conversationSid: String?
-    ): ResponseEntity<String> {
-        log.info("Received webhook with individual parameters: " +
-                "messageSid=$messageSid, conversationSid=$conversationSid, body=$body, author=$author")
+    fun updateJson(@RequestBody params: Map<String, Any>): ResponseEntity<String> {
+        log.info("Received JSON webhook with parameters: ${params}")
 
-        // Convert parameters to Update object
+        // Convert JSON parameters to Update object
         val update = Update(
-            messagingServiceSid = messagingServiceSid,
-            eventType = eventType,
-            attributes = attributes,
-            media = media,
-            dateCreated = dateCreated,
-            index = index?.toIntOrNull(),
-            chatServiceSid = chatServiceSid,
-            messageSid = messageSid,
-            accountSid = accountSid,
-            source = source,
-            retryCount = retryCount?.toIntOrNull(),
-            clientIdentity = clientIdentity,
-            author = author,
-            participantSid = participantSid,
-            body = body,
-            conversationSid = conversationSid
+            messagingServiceSid = params["MessagingServiceSid"]?.toString(),
+            eventType = params["EventType"]?.toString(),
+            attributes = params["Attributes"]?.toString(),
+            media = params["Media"]?.toString(),
+            dateCreated = params["DateCreated"]?.toString(),
+            index = params["Index"]?.toString()?.toIntOrNull(),
+            chatServiceSid = params["ChatServiceSid"]?.toString(),
+            messageSid = params["MessageSid"]?.toString(),
+            accountSid = params["AccountSid"]?.toString(),
+            source = params["Source"]?.toString(),
+            retryCount = params["RetryCount"]?.toString()?.toIntOrNull(),
+            clientIdentity = params["ClientIdentity"]?.toString(),
+            author = params["Author"]?.toString(),
+            participantSid = params["ParticipantSid"]?.toString(),
+            body = params["Body"]?.toString(),
+            conversationSid = params["ConversationSid"]?.toString()
         )
 
-        log.debug("Created update object: {}", update)
-        onUpdate(update.getMessage(objectMapper))
+        log.info("Created update object from JSON: {}", update)
+        val message = update.getMessage(objectMapper)
+        log.info("Converted to message object: {}", message)
+        onUpdate(message)
         return ResponseEntity.ok("ok")
     }
 
