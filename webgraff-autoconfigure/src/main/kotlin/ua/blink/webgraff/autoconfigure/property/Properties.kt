@@ -49,8 +49,6 @@ class Properties {
      * For example, /webchat.
      */
     var webhookEndpointUrl: String = "/webchat/" + UUID.randomUUID().toString()
-    
-    fun getWebhookEndpointUrl(): String = webhookEndpointUrl
 
     /**
      * Path where handlers declaration stored.
