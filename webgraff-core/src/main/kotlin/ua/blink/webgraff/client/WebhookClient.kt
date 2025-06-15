@@ -47,27 +47,45 @@ class WebhookClient(
         method = [RequestMethod.POST],
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
     )
-    fun update(@RequestParam params: Map<String, String>): ResponseEntity<String> {
-        log.info("Received webhook with parameters: ${params}")
+    fun update(
+        @RequestParam(value = "MessagingServiceSid", required = false) messagingServiceSid: String?,
+        @RequestParam(value = "EventType", required = false) eventType: String?,
+        @RequestParam(value = "Attributes", required = false) attributes: String?,
+        @RequestParam(value = "Media", required = false) media: String?,
+        @RequestParam(value = "DateCreated", required = false) dateCreated: String?,
+        @RequestParam(value = "Index", required = false) index: String?,
+        @RequestParam(value = "ChatServiceSid", required = false) chatServiceSid: String?,
+        @RequestParam(value = "MessageSid", required = false) messageSid: String?,
+        @RequestParam(value = "AccountSid", required = false) accountSid: String?,
+        @RequestParam(value = "Source", required = false) source: String?,
+        @RequestParam(value = "ClientIdentity", required = false) clientIdentity: String?,
+        @RequestParam(value = "RetryCount", required = false) retryCount: String?,
+        @RequestParam(value = "Author", required = false) author: String?,
+        @RequestParam(value = "ParticipantSid", required = false) participantSid: String?,
+        @RequestParam(value = "Body", required = false) body: String?,
+        @RequestParam(value = "ConversationSid", required = false) conversationSid: String?
+    ): ResponseEntity<String> {
+        log.info("Received webhook with individual parameters: " +
+                "messageSid=$messageSid, conversationSid=$conversationSid, body=$body, author=$author")
 
-        // Convert form parameters to Update object
+        // Convert parameters to Update object
         val update = Update(
-            messagingServiceSid = params["MessagingServiceSid"],
-            eventType = params["EventType"],
-            attributes = params["Attributes"],
-            media = params["Media"],
-            dateCreated = params["DateCreated"],
-            index = params["Index"]?.toIntOrNull(),
-            chatServiceSid = params["ChatServiceSid"],
-            messageSid = params["MessageSid"],
-            accountSid = params["AccountSid"],
-            source = params["Source"],
-            retryCount = params["RetryCount"]?.toIntOrNull(),
-            clientIdentity = params["ClientIdentity"],
-            author = params["Author"],
-            participantSid = params["ParticipantSid"],
-            body = params["Body"],
-            conversationSid = params["ConversationSid"]
+            messagingServiceSid = messagingServiceSid,
+            eventType = eventType,
+            attributes = attributes,
+            media = media,
+            dateCreated = dateCreated,
+            index = index?.toIntOrNull(),
+            chatServiceSid = chatServiceSid,
+            messageSid = messageSid,
+            accountSid = accountSid,
+            source = source,
+            retryCount = retryCount?.toIntOrNull(),
+            clientIdentity = clientIdentity,
+            author = author,
+            participantSid = participantSid,
+            body = body,
+            conversationSid = conversationSid
         )
 
         log.debug("Created update object: {}", update)

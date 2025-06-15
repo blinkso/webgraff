@@ -63,18 +63,6 @@ data class Update(
                         object : TypeReference<List<UpdateMedia>>() {})
                 }.getOrNull()
             }
-        
-        // Debug logging to trace the values being used
-        println("DEBUG - Update values being mapped to Message:")
-        println("messageSid: $messageSid")
-        println("accountSid: $accountSid")
-        println("messagingServiceSid: $messagingServiceSid")
-        println("conversationSid: $conversationSid")
-        println("author: $author")
-        println("attributes: $attributes")
-        println("dateCreated: $dateCreated")
-        println("body: $body")
-        
         return Message(
             sid = messageSid ?: "",
             accountSid = accountSid ?: "",
