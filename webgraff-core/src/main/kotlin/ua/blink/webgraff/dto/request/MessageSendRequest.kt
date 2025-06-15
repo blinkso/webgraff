@@ -148,81 +148,9 @@ open class MessageSendRequest(
     }
 
     fun formContent(contentTemplates: Map<String, String>): Pair<String, String>? {
-        return when (buttons) {
-            is MarkupInlinedReplyKeyboard -> {
-                val actionButton =
-                    buttons.buttons.firstOrNull { it is ActionReplyKeyboard } as? ActionReplyKeyboard
-                val buttons = buttons.buttons.let { buttons ->
-                    actionButton?.let { buttons.minusElement(it) } ?: buttons
-                }
-                when {
-                    this is MarkdownTemplateMessage -> {
-                        val variables = buttons
-                            .withIndex()
-                            .joinToString(prefix = "{", postfix = "}") { (index, button) ->
-                                button as InlineUrlReplyKeyboard
-                                "\"${index + 1}\":\"${button.text}\""
-                            }
-
-                        contentSid to variables.replace("\\r?\\n|\\r".toRegex(), "  ")
-                    }
-
-                    this is MarkdownInlinedButtonsTemplateMessage -> {
-                        val variables = buttons
-                            .withIndex()
-                            .joinToString(prefix = "{", postfix = "}") { (index, button) ->
-                                button as InlineUrlReplyKeyboard
-                                "\"${index + 1}\":\"${button.text}\""
-                            }
-
-                        contentSid to variables.replace("\\r?\\n|\\r".toRegex(), "  ")
-                    }
-
-                    buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } -> {
-                        null
-                    }
-
-                    buttons.size <= 3 && this !is MarkdownMessage -> {
-                        val variables = buildString {
-                            append("{\"1\":\"${text}\"")
-                            buttons.forEachIndexed { index, button ->
-                                button as InlineUrlReplyKeyboard
-                                append(", \"${index + 2}\":\"${button.text.take(BUTTON_MAX_LENGTH)}\"")
-                            }
-                            append("}")
-                        }
-
-                        val templateKey = "button_${buttons.size}"
-                        val contentSid = contentTemplates[templateKey] 
-                            ?: throw IllegalArgumentException("No content template found for key: $templateKey")
-                        
-                        contentSid to variables.replace("\\r?\\n|\\r".toRegex(), "  ")
-                    }
-
-                    else -> {
-                        val variables = buildString {
-                            append("{\"1\":\"${text}\"")
-                            append(", \"2\":\"${actionButton?.text?.take(BUTTON_MAX_LENGTH) ?: ""}\"")
-                            buttons.forEachIndexed { index, button ->
-                                button as InlineUrlReplyKeyboard
-                                append(", \"${index + 3}\":\"${button.text.take(LIST_ITEM_MAX_LENGTH)}\"")
-                            }
-                            append("}")
-                        }
-
-                        val templateKey = "list_${buttons.size}"
-                        val contentSid = contentTemplates[templateKey]
-                            ?: throw IllegalArgumentException("No content template found for key: $templateKey")
-                            
-                        contentSid to variables.replace("\\r?\\n|\\r".toRegex(), "  ")
-                    }
-                }
-            }
-
-            else -> {
-                null
-            }
-        }
+        // Always return null to force regular message format instead of content templates
+        // This ensures button text is always included in the message body
+        return null
     }
 
     fun formShortenUrls(): Boolean? {
