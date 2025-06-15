@@ -63,7 +63,7 @@ data class Update(
         return Message(
             sid = messageSid ?: "",
             accountSid = accountSid ?: "",
-            serviceSid = chatServiceSid ?: "",
+            serviceSid = messagingServiceSid ?: "",
             chatId = conversationSid ?: "",
             user = author,
             attributes = attributes,

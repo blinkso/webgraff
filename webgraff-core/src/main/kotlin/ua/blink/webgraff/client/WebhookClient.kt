@@ -48,7 +48,10 @@ class WebhookClient(
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
     )
     fun update(@RequestParam params: Map<String, String>): ResponseEntity<String> {
+        log.debug("Received webhook with parameters: {}", params)
+        
         // Convert form parameters to Update object
+        // Note: Twilio Conversations sends MessagingServiceSid, not ChatServiceSid
         val update = Update(
             messagingServiceSid = params["MessagingServiceSid"],
             eventType = params["EventType"],
@@ -56,16 +59,18 @@ class WebhookClient(
             media = params["Media"],
             dateCreated = params["DateCreated"],
             index = params["Index"]?.toIntOrNull(),
-            chatServiceSid = params["ChatServiceSid"],
+            chatServiceSid = null, // Not sent by Twilio Conversations webhooks
             messageSid = params["MessageSid"],
             accountSid = params["AccountSid"],
             source = params["Source"],
-            retryCount = params["RetryCount"]?.toIntOrNull(),
+            retryCount = null, // Not sent by Twilio Conversations webhooks
             author = params["Author"],
             participantSid = params["ParticipantSid"],
             body = params["Body"],
             conversationSid = params["ConversationSid"]
         )
+        
+        log.debug("Created update object: {}", update)
         onUpdate(update.getMessage(objectMapper))
         return ResponseEntity.ok("ok")
     }
