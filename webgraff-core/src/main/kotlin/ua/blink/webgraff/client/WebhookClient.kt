@@ -48,7 +48,7 @@ class WebhookClient(
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
     )
     fun update(@RequestParam params: Map<String, String>): ResponseEntity<String> {
-        log.debug("Received webhook with parameters: {}", params)
+        log.info("Received webhook with parameters: ${params}")
 
         // Convert form parameters to Update object
         val update = Update(
