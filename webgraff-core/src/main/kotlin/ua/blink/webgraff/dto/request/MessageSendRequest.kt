@@ -125,7 +125,14 @@ open class MessageSendRequest(
                     }
 
                     buttons.size <= 3 && this !is MarkdownMessage -> {
-                        null
+                        val text = buildString {
+                            append(text)
+                            buttons.forEachIndexed { index, button ->
+                                button as InlineUrlReplyKeyboard
+                                append("\n${index + 1}. ${button.text}")
+                            }
+                        }
+                        text
                     }
 
                     else -> {
