@@ -38,6 +38,9 @@ data class Update(
     @JsonProperty("RetryCount")
     val retryCount: Int?,
 
+    @JsonProperty("ClientIdentity")
+    val clientIdentity: String?,
+
     @JsonProperty("Author")
     val author: String?,
 
@@ -65,7 +68,7 @@ data class Update(
             accountSid = accountSid ?: "",
             serviceSid = messagingServiceSid ?: "",
             chatId = conversationSid ?: "",
-            user = author,
+            user = author ?: clientIdentity,
             attributes = attributes,
             date = dateCreated ?: "",
             photo = mediaList?.map {
