@@ -1,6 +1,7 @@
 package ua.blink.webgraff.dto.request
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.ObjectMapper
 import ua.blink.webgraff.dto.request.keyboard.ActionReplyKeyboard
 import ua.blink.webgraff.dto.request.keyboard.InlineUrlReplyKeyboard
 import ua.blink.webgraff.dto.request.keyboard.MarkupInlinedReplyKeyboard
@@ -37,153 +38,24 @@ open class MessageSendRequest(
         return "MessageSendRequest(text='$text')"
     }
 
-    fun formAttributes(): String? {
-        return when (buttons) {
-            is MarkupInlinedReplyKeyboard -> {
-                val actionButton =
-                    buttons.buttons.firstOrNull { it is ActionReplyKeyboard } as? ActionReplyKeyboard
-                val buttons = buttons.buttons.let { buttons ->
-                    actionButton?.let { buttons.minusElement(it) } ?: buttons
-                }
-                when {
-                    this is MarkdownTemplateMessage -> {
-                        val attributes = buttons
-                            .withIndex()
-                            .joinToString(prefix = "{", postfix = "}") { (index, button) ->
-                                button as InlineUrlReplyKeyboard
-                                "\"${index + 1}\":\"${button.callbackData ?: ""}\""
-                            }
-
-                        attributes
-                    }
-
-                    this is MarkdownInlinedButtonsTemplateMessage -> {
-                        val attributes = buttons
-                            .withIndex()
-                            .joinToString(prefix = "{", postfix = "}") { (index, button) ->
-                                button as InlineUrlReplyKeyboard
-                                "\"${index + 1}\":\"${button.url ?: ""}\""
-                            }
-
-                        attributes
-                    }
-
-                    buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } -> {
-                        null
-                    }
-
-                    buttons.size <= 3 && this !is MarkdownMessage -> {
-                        val attributes = buttons
-                            .withIndex()
-                            .joinToString(prefix = "{", postfix = "}") { (index, button) ->
-                                button as InlineUrlReplyKeyboard
-                                "\"${index + 2}\":\"${button.callbackData ?: ""}\""
-                            }
-
-                        attributes
-                    }
-
-                    else -> {
-                        val attributes = buttons
-                            .withIndex()
-                            .joinToString(prefix = "{", postfix = "}") { (index, button) ->
-                                button as InlineUrlReplyKeyboard
-                                "\"${index + 3}\":\"${button.callbackData ?: ""}\""
-                            }
-
-                        attributes
-                    }
-                }
+    fun formAttributes(): String {
+        val actions = (buttons as? MarkupInlinedReplyKeyboard)?.buttons.orEmpty()
+            .filterIsInstance<InlineUrlReplyKeyboard>()
+            .mapIndexed { index, button ->
+                mapOf("id" to index.toString(), "label" to button.text,
+                    "callback" to button.callbackData, "url" to button.url)
             }
-
-            else -> {
-                null
-            }
-        }
+        val mapper = ObjectMapper()
+        val attributes = mapOf("version" to 1, "actions" to actions) + metadata
+        val serialized = mapper.writeValueAsString(mapOf("webchat" to attributes))
+        // The gateway retains complete labels/actions; Twilio attributes have a smaller limit.
+        return if (serialized.toByteArray(Charsets.UTF_8).size <= 3500) serialized else
+            mapper.writeValueAsString(mapOf("webchat" to (attributes - "actions" + ("actionsInJourney" to true))))
     }
 
-    fun formBody(): String? {
-        return when (buttons) {
-            is MarkupInlinedReplyKeyboard -> {
-                val actionButton =
-                    buttons.buttons.firstOrNull { it is ActionReplyKeyboard } as? ActionReplyKeyboard
-                val buttons = buttons.buttons.let { buttons ->
-                    actionButton?.let { buttons.minusElement(it) } ?: buttons
-                }
-                when {
-                    buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } && this !is MarkdownInlinedButtonsTemplateMessage -> {
-                        val text = buildString {
-                            append(text)
-                            append("\n")
-                            buttons.forEach { button ->
-                                button as InlineUrlReplyKeyboard
-                                append("\n${button.text}: ${button.url}")
-                            }
-                        }
+    fun formBody(): String = text
 
-                        text
-                    }
+    fun formContent(contentTemplates: Map<String, String>): Pair<String, String>? = null
 
-                    buttons.size <= 3 && this !is MarkdownMessage -> {
-                        val text = buildString {
-                            append(text)
-                            buttons.forEachIndexed { index, button ->
-                                button as InlineUrlReplyKeyboard
-                                append("\n${index + 1}. ${button.text}")
-                            }
-                        }
-                        text
-                    }
-
-                    else -> {
-                        null
-                    }
-                }
-            }
-
-            else -> {
-                text
-            }
-        }
-    }
-
-    fun formContent(contentTemplates: Map<String, String>): Pair<String, String>? {
-        // Always return null to force regular message format instead of content templates
-        // This ensures button text is always included in the message body
-        return null
-    }
-
-    fun formShortenUrls(): Boolean? {
-        return when (buttons) {
-            is MarkupInlinedReplyKeyboard -> {
-                val actionButton =
-                    buttons.buttons.firstOrNull { it is ActionReplyKeyboard } as? ActionReplyKeyboard
-                val buttons = buttons.buttons.let { buttons ->
-                    actionButton?.let { buttons.minusElement(it) } ?: buttons
-                }
-                when {
-                    buttons.any { (it as? InlineUrlReplyKeyboard)?.url != null } -> {
-                        true
-                    }
-
-                    buttons.size <= 3 && this !is MarkdownMessage -> {
-                        false
-                    }
-
-                    else -> {
-                        false
-                    }
-                }
-            }
-
-            else -> {
-                null
-            }
-        }
-    }
-
-    private companion object {
-        private const val BUTTON_MAX_LENGTH = 20
-        private const val LIST_ITEM_MAX_LENGTH = 24
-    }
+    fun formShortenUrls(): Boolean = false
 }

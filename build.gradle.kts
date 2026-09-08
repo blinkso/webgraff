@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "ua.blink.webgraff"
-version = "1.0.13"
+version = "1.0.14"
 
 allprojects {
     repositories {
@@ -65,7 +65,7 @@ subprojects {
         manifest {
             attributes["Implementation-Version"] = archiveVersion
         }
-        archiveFileName.set(rootProject.name + ".jar")
+        archiveFileName.set(project.name + ".jar")
     }
 
     tasks {
