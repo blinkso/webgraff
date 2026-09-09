@@ -23,7 +23,9 @@ import java.util.concurrent.ConcurrentHashMap
 class HandlersFilter(
     private val conversationApi: ConversationApi,
     private val buttonsFactory: ButtonsFactory,
-    handlersFactory: HandlersFactory
+    handlersFactory: HandlersFactory,
+    private val stateChanged: (String, HandlerState?) -> Unit = { _, _ -> },
+    private val validationFailed: (String) -> Unit = {}
 ) : Filter {
 
     private val handlers: Map<String, Handler> = handlersFactory.getHandlers()
@@ -50,6 +52,7 @@ class HandlersFilter(
                     handler = handler
                 )
                 states[message.chatId ?: ""] = newState
+                checkpoint(newState)
 
                 handleQuestion(newState)
             } else {
@@ -59,11 +62,8 @@ class HandlersFilter(
             clearState(message.chatId ?: "")
             e.messageRequest
         } catch (e: Exception) {
-            log.error("Error during handler processing", e)
-
-            clearState(message.chatId ?: "")
-            val locale = Locale(DEFAULT_LOCALE.toLanguageTag())
-            MarkdownMessage("telegram_something_went_wrong".localized(locale))
+            // The transport owns retry/acknowledgement. Keep the current step on failure.
+            throw e
         }
 
         sendResponse(chatId = message.chatId ?: "", to = message.user ?: "", response = response)
@@ -71,10 +71,35 @@ class HandlersFilter(
 
     fun clearState(chatId: String) {
         states.remove(chatId)
+        stateChanged(chatId, null)
     }
 
+    fun currentState(chatId: String): HandlerState? = states[chatId]
+
+    fun restoreState(chatId: String, command: String, step: String?, answers: Map<String, Any>,
+                     attributes: Map<String, Any> = emptyMap(), username: String = ""): Boolean {
+        val handler = handlers[command.lowercase()] ?: return false
+        if (step != null && handler.getStepByKey(step) == null) return false
+        states[chatId] = HandlerState(chatId, username, username, handler).apply {
+            currentStep = step?.let(handler::getStepByKey)
+            this.answers.putAll(answers)
+            this.attributes.putAll(attributes)
+        }
+        return true
+    }
+
+    suspend fun resume(chatId: String): Boolean {
+        val state = states[chatId] ?: return false
+        // A final submission is only retried by the original input, never by opening a chat.
+        val step = state.currentStep ?: return false
+        sendResponse(chatId, state.username, step.question(state))
+        return true
+    }
+
+    private fun checkpoint(state: HandlerState) = stateChanged(state.chatId, state)
+
     private suspend fun handleContinuation(state: HandlerState, message: Message): SendRequest? {
-        val currentStep = state.currentStep!!
+        val currentStep = state.currentStep ?: return handleFinalization(state)
         val text = message.getMessageText()!!
 
         // validation
@@ -83,13 +108,14 @@ class HandlersFilter(
         val answer = try {
             validation(state, text, message.photo)
         } catch (e: ValidationException) {
+            validationFailed(state.chatId)
             val question = currentStep.question(state)
             return MessageSendRequest(
                 chatId = "",
                 to = state.username,
                 text = e.message,
                 replyMarkup = question.buttons
-            )
+            ).also { it.metadata = question.metadata }
         } catch (e: CancelException) {
             clearState(message.chatId ?: "")
             return e.messageRequest
@@ -104,6 +130,7 @@ class HandlersFilter(
         } catch (e: FinishException) {
             state.currentStep = null
         }
+        checkpoint(state)
 
         return handleQuestion(state)
     }
@@ -119,8 +146,9 @@ class HandlersFilter(
     }
 
     private suspend fun handleFinalization(state: HandlerState): SendRequest? {
+        val response = state.handler.process(state, state.answers)
         clearState(state.chatId)
-        return state.handler.process(state, state.answers)
+        return response
     }
 
     fun sendResponse(chatId: String, to: String, response: SendRequest?) {
@@ -157,8 +185,9 @@ class HandlersFilter(
                 ?.lowercase()
                 ?: return null
         for (entry in handlers) {
-            if (text.startsWith(entry.key)) {
-                clearState(message.chatId ?: "")
+            if (text == entry.key || text.startsWith(entry.key + "=") ||
+                (message.attributes?.contains("\"action\"") == true && text.startsWith(entry.key))) {
+                states.remove(message.chatId ?: "")
                 return entry.value
             }
         }

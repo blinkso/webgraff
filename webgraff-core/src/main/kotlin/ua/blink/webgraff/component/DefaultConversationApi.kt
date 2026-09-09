@@ -191,7 +191,7 @@ class DefaultConversationApi(
             .retrieve()
             .onStatus(
                 { status -> status.isError },
-                { clientResponse -> clientResponse.handleError("sendMessage($request)") }
+                { clientResponse -> clientResponse.handleError("sendMessage") }
             )
             .bodyToMono(object : ParameterizedTypeReference<Message>() {})
             .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
@@ -216,7 +216,6 @@ class DefaultConversationApi(
             }
             add("MessagingServiceSid", messagingSid)
             add("Author", "system") // Sends as the system user
-            log.info("MessageBodyContent: $this")
         }
     }
 
@@ -240,7 +239,7 @@ class DefaultConversationApi(
             .retrieve()
             .onStatus(
                 { status -> status.isError },
-                { clientResponse -> clientResponse.handleError("sendDocument($request)") }
+                { clientResponse -> clientResponse.handleError("sendDocument") }
             )
             .bodyToMono(object : ParameterizedTypeReference<Message>() {})
             .toFuture()
@@ -267,7 +266,7 @@ class DefaultConversationApi(
             .retrieve()
             .onStatus(
                 { status -> status.isError },
-                { clientResponse -> clientResponse.handleError("sendPhoto($request)") }
+                { clientResponse -> clientResponse.handleError("sendPhoto") }
             )
             .bodyToMono(object : ParameterizedTypeReference<Message>() {})
             .toFuture()
@@ -294,7 +293,7 @@ class DefaultConversationApi(
             .retrieve()
             .onStatus(
                 { status -> status.isError },
-                { clientResponse -> clientResponse.handleError("sendVoice($request)") }
+                { clientResponse -> clientResponse.handleError("sendVoice") }
             )
             .bodyToMono(object : ParameterizedTypeReference<Message>() {})
             .toFuture()

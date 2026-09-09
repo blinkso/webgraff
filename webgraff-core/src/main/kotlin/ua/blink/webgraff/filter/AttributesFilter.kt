@@ -17,6 +17,10 @@ class AttributesFilter(
 ) : Filter {
 
     override suspend fun handleMessage(message: Message, chain: FilterChain) {
+        if (message.attributes?.contains("\"webchat\"") == true) {
+            chain.doFilter(message)
+            return
+        }
         // Get all button requests for the chatId
         val chatId = message.chatId ?: ""
         val messageText = message.text ?: ""
@@ -24,7 +28,7 @@ class AttributesFilter(
         // Check all button requests for matching buttons
         buttonsFactory.getButtonsRequests(chatId).asReversed().forEach { buttonsRequest ->
             val button = (buttonsRequest.buttons as? MarkupInlinedReplyKeyboard)?.buttons?.firstOrNull {
-                (it as? InlineUrlReplyKeyboard)?.text?.contains(messageText, ignoreCase = true) == true
+                messageText.isNotBlank() && (it as? InlineUrlReplyKeyboard)?.text?.equals(messageText, ignoreCase = true) == true
             }
 
             if ((button as? InlineUrlReplyKeyboard)?.callbackData != null) {

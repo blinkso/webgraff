@@ -16,6 +16,10 @@ abstract class SendRequest(
     @get:JsonProperty("buttons")
     val buttons: ReplyKeyboard? = null,
 ) {
+    /** Transport metadata supplied by the application, never inferred from message text. */
+    @get:JsonIgnore
+    var metadata: Map<String, Any?> = emptyMap()
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
