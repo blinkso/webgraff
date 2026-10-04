@@ -1,0 +1,181 @@
+{
+  "outputId": "catalog-output",
+  "revision": "catalog-revision",
+  "responseTo": "change-tickets-0001",
+  "kind": "ticket-selection",
+  "phase": "PAYMENT",
+  "inputType": "none",
+  "selectionLimit": 20,
+  "ticketOptions": [
+    {
+      "checkout": {
+        "items": [
+          {
+            "priceId": "04680940-2feb-4486-946a-8f8bd8cf1e73",
+            "title": "L’ÉTOILE VIP - Standard",
+            "description": "Приватний доступ до Свірзького замку з 11:00, \nwelcome L’ÉTOILE, \nмаршрут замком, \nфотосесія, \nVIP-трансфер Львів—Свірж—Львів, \nПроживання в boutique hotel та Collector’s Box для гостей Le Galop VIP",
+            "count": 1,
+            "unitAmount": 27000.0,
+            "subtotal": 27000.0,
+            "amount": 27000.0
+          }
+        ],
+        "currency": "UAH",
+        "subtotal": 27000.0,
+        "discount": 0.0,
+        "serviceFee": 0.0,
+        "total": 27000.0,
+        "showServiceFee": false,
+        "promoCode": null
+      },
+      "callback": "/selectTickets=04680940-2feb-4486-946a-8f8bd8cf1e73",
+      "maximum": 20,
+      "unavailable": null,
+      "selected": 0
+    },
+    {
+      "checkout": {
+        "items": [
+          {
+            "priceId": "047a3de1-bc77-4642-9268-73b64f8d29ce",
+            "title": "LE CERCLE - Early bird",
+            "description": "Все з L’INVITÉ +\nпріоритетний вхід;\nдоступ до закритого простору LE CERCLE;\nдоступ до окремих моментів програми;\nподарунок першого епізоду;\nособливі місця під час ключових моментів вечора.",
+            "count": 1,
+            "unitAmount": 12000.0,
+            "subtotal": 12000.0,
+            "amount": 12000.0
+          }
+        ],
+        "currency": "UAH",
+        "subtotal": 12000.0,
+        "discount": 0.0,
+        "serviceFee": 0.0,
+        "total": 12000.0,
+        "showServiceFee": false,
+        "promoCode": null
+      },
+      "callback": "/selectTickets=047a3de1-bc77-4642-9268-73b64f8d29ce",
+      "maximum": 0,
+      "unavailable": "Така кількість квитків уже недоступна.",
+      "selected": 0
+    },
+    {
+      "checkout": {
+        "items": [
+          {
+            "priceId": "9117c5ea-0720-4470-b5a2-df5e9ff5b48a",
+            "title": "L’INVITÉ - Early bird",
+            "description": "доступ до просторів Свірзького замку, імерсивна подорож Домом, музичні та мистецькі події, гастрономічний досвід, страви та напої, авторський коктейль, виступ секретного артиста та благодійний аукціон",
+            "count": 1,
+            "unitAmount": 4000.0,
+            "subtotal": 4000.0,
+            "amount": 4000.0
+          }
+        ],
+        "currency": "UAH",
+        "subtotal": 4000.0,
+        "discount": 0.0,
+        "serviceFee": 0.0,
+        "total": 4000.0,
+        "showServiceFee": false,
+        "promoCode": null
+      },
+      "callback": "/selectTickets=9117c5ea-0720-4470-b5a2-df5e9ff5b48a",
+      "maximum": 0,
+      "unavailable": "Така кількість квитків уже недоступна.",
+      "selected": 0
+    },
+    {
+      "checkout": {
+        "items": [
+          {
+            "priceId": "9e2c377e-f845-473d-af32-e7d0152bf03d",
+            "title": "L'INVITÉ- Standard",
+            "description": "доступ до просторів Свірзького замку, імерсивна подорож Домом, музичні та мистецькі події, гастрономічний досвід, страви та напої, авторський коктейль, виступ секретного артиста та благодійний аукціон",
+            "count": 1,
+            "unitAmount": 6000.0,
+            "subtotal": 6000.0,
+            "amount": 6000.0
+          }
+        ],
+        "currency": "UAH",
+        "subtotal": 6000.0,
+        "discount": 0.0,
+        "serviceFee": 0.0,
+        "total": 6000.0,
+        "showServiceFee": false,
+        "promoCode": null
+      },
+      "callback": "/selectTickets=9e2c377e-f845-473d-af32-e7d0152bf03d",
+      "maximum": 20,
+      "unavailable": null,
+      "selected": 1
+    },
+    {
+      "checkout": {
+        "items": [
+          {
+            "priceId": "bd67ffc5-9a1b-4cb1-98cd-a582a9168f69",
+            "title": "LE CERCLE - Standard",
+            "description": "Все з L’INVITÉ +\nпріоритетний вхід;\nдоступ до закритого простору LE CERCLE;\nдоступ до окремих моментів програми;\nподарунок першого епізоду;\nособливі місця під час ключових моментів вечора.",
+            "count": 1,
+            "unitAmount": 15000.0,
+            "subtotal": 15000.0,
+            "amount": 15000.0
+          }
+        ],
+        "currency": "UAH",
+        "subtotal": 15000.0,
+        "discount": 0.0,
+        "serviceFee": 0.0,
+        "total": 15000.0,
+        "showServiceFee": false,
+        "promoCode": null
+      },
+      "callback": "/selectTickets=bd67ffc5-9a1b-4cb1-98cd-a582a9168f69",
+      "maximum": 20,
+      "unavailable": null,
+      "selected": 0
+    },
+    {
+      "checkout": {
+        "items": [
+          {
+            "priceId": "fafbf9ad-14cc-400e-a7bf-6d5829cabbca",
+            "title": "L’ÉTOILE VIP - Early bird",
+            "description": "Приватний доступ до Свірзького замку з 11:00, \nwelcome L’ÉTOILE, \nмаршрут замком, \nфотосесія, \nVIP-трансфер Львів—Свірж—Львів, \nПроживання в boutique hotel та Collector’s Box для гостей Le Galop VIP",
+            "count": 1,
+            "unitAmount": 25000.0,
+            "subtotal": 25000.0,
+            "amount": 25000.0
+          }
+        ],
+        "currency": "UAH",
+        "subtotal": 25000.0,
+        "discount": 0.0,
+        "serviceFee": 0.0,
+        "total": 25000.0,
+        "showServiceFee": false,
+        "promoCode": null
+      },
+      "callback": "/selectTickets=fafbf9ad-14cc-400e-a7bf-6d5829cabbca",
+      "maximum": 0,
+      "unavailable": "Така кількість квитків уже недоступна.",
+      "selected": 0
+    }
+  ],
+  "actions": [
+    {
+      "id": "continue",
+      "label": "Продовжити",
+      "callback": "/selectTickets",
+      "url": null
+    },
+    {
+      "id": "promo",
+      "label": "Промокод",
+      "callback": "/selectionPromo",
+      "url": null
+    }
+  ]
+}
